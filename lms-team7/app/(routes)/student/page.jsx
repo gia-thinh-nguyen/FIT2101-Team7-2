@@ -1,5 +1,6 @@
 import { checkTeacher } from "@/utils/checkTeacher";
 import { UserCircle, LogOut } from "lucide-react";
+import Assignment from "../../../components/Assignments";
 import UnitPieChart from "@/components/UnitPieChart"; //client pie-chart component exported
 
 export default function Page() {
@@ -90,15 +91,8 @@ export default function Page() {
       {/* Header */}
       <div className="flex items-center justify-between mb-8 p-4 bg-white shadow-lg rounded-xl">
         <h1 className="text-2xl font-bold">
-          Welcome, {student.name} ({student.year} {student.semester})
+          Welcome, {student.name}
         </h1>
-        <div className="flex items-center gap-3">
-          <UserCircle className="w-10 h-10 text-blue-600" />
-          <button className="flex items-center gap-1 px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
-            <LogOut className="w-5 h-5" />
-            Logout
-          </button>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -114,21 +108,14 @@ export default function Page() {
 
               {/* Scrollable Assignments */}
               <div className="h-48 overflow-y-auto space-y-2">
-                {unit.assessments.map((a) => (
-                  <div key={a.id} className="flex justify-between items-center p-3 bg-white rounded-lg shadow hover:shadow-md transition cursor-pointer">
-                    <div>
-                      <h3 className="font-semibold">{a.title}</h3>
-                      <p className="text-sm text-gray-500">{a.type === "assignment" ? `${a.weight}%` : `${a.weight}% (Exam)`}</p>
-                    </div>
-                    <span className={`px-2 py-1 rounded-full text-sm ${
-                      a.status === "Completed" ? "bg-green-100 text-green-800" :
-                      a.status === "In Progress" ? "bg-yellow-100 text-yellow-800" :
-                      "bg-gray-100 text-gray-600"
-                    }`}>
-                      {a.status}
-                    </span>
-                  </div>
-                ))}
+                  {unit.assessments.map((a) => (
+                    <Assignment
+                      key={a.id}
+                      title={a.title}
+                      grade={a.grade}
+                      status={a.status}
+                    />
+                  ))}
               </div>
             </div>
           ))}
