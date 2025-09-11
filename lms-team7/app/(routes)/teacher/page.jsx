@@ -1,6 +1,6 @@
 import {checkTeacher} from '@/utils/checkTeacher'
 import { redirect } from 'next/navigation';
-import { auth } from '@clerk/nextjs/server'
+import TeacherDashboard from '@/components/TeacherDashboard';
 
 export default async function page() {
   const isTeacher = await checkTeacher();
@@ -8,6 +8,6 @@ export default async function page() {
     redirect('/');
   }
   return (
-    <div>teacher page</div>
+    <div><TeacherDashboard /></div>
   )
 }
