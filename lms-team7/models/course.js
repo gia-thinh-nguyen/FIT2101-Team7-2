@@ -11,5 +11,5 @@ const CourseSchema = new Schema(
   }
 );
 
-
-export default models.Course || model('Course', CourseSchema);
+const Course = models.Course || model('Course', CourseSchema);
+export default Course;

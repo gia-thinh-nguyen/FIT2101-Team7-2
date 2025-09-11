@@ -9,9 +9,12 @@ const UserSchema = new Schema(
     role:      { type: String, enum: ['student', 'teacher'], required: true },
 
     // optional studentProfile reference
-    studentProfileId: { type: Schema.Types.ObjectId, ref: 'StudentProfile' },
+    dateEnrolled: { type: Date, required: true },
+    status: { type: String, enum: ['active', 'dropped-out'], default: 'active' },
+    currentCreditPoints: { type: Number, default: 0 },
+    enrolledCourseIds: { type: Schema.Types.ObjectId, ref: 'Course', default: [] }, // array of course IDs
   }
 );
+const User = models.User || model('User', UserSchema);
 
-
-export default models.User || model('User', UserSchema);
+export default User;

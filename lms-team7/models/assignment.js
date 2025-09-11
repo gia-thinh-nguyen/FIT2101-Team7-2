@@ -8,5 +8,5 @@ const AssignmentSchema = new Schema(
     grade: { type: String, enum: ['P', 'F', 'not graded'], required: true },
   }
 );
-
-export default models.Assignment || model('Assignment', AssignmentSchema);
+const Assignment = models.Assignment || model('Assignment', AssignmentSchema);
+export default Assignment;

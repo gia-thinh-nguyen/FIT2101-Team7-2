@@ -15,5 +15,6 @@ const LessonSchema = new Schema(
   }
 );
 
+const Lesson = models.Lesson || model('Lesson', LessonSchema);
 
-export default models.Lesson || model('Lesson', LessonSchema);
+export default Lesson;
