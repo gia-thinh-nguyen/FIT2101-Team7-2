@@ -1,22 +1,57 @@
 "use client";
-import { useTheme } from "../ThemeContext";
 
-export default function Page() {
+import { useTheme } from "../context/ThemeContext";
+
+export default function ThemesPage() {
   const { theme, setTheme } = useTheme();
 
+  // Define all valid themes
+  const themeOptions: { key: typeof theme; label: string }[] = [
+    { key: "blue", label: "Blue" },
+    { key: "green", label: "Green" },
+    { key: "pink", label: "Pink" },
+    { key: "purple", label: "Purple" },
+    { key: "orange", label: "Orange" },
+    { key: "grey", label: "Grey" },
+    { key: "yellow", label: "Yellow" },
+  ];
+
+  // Centralised theme styles for preview box
+  const themeStyles = {
+    blue: "bg-blue-50 text-blue-900",
+    green: "bg-green-50 text-green-900",
+    pink: "bg-pink-50 text-pink-900",
+    purple: "bg-purple-50 text-purple-900",
+    orange: "bg-orange-50 text-orange-900",
+    grey: "bg-gray-50 text-gray-900",
+    yellow: "bg-yellow-50 text-yellow-900",
+  }[theme];
+
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Theme Settings</h2>
+    <div className={`space-y-6 p-6 rounded-lg ${themeStyles}`}>
+      <h2 className="text-2xl font-bold">Theme Settings</h2>
       <p>Select a theme for your dashboard:</p>
 
-      <div className="flex gap-4 mt-4">
-        <button onClick={() => setTheme("blue")} className="px-4 py-2 bg-blue-100 rounded">Blue</button>
-        <button onClick={() => setTheme("dark")} className="px-4 py-2 bg-gray-800 text-white rounded">Dark</button>
-        <button onClick={() => setTheme("green")} className="px-4 py-2 bg-green-100 text-green-900 rounded">Green</button>
+      {/* Dropdown for selecting theme */}
+      <div className="mt-4">
+        <select
+          value={theme}
+          onChange={(e) => setTheme(e.target.value as typeof theme)}
+          className="p-2 rounded border bg-white text-black"
+        >
+          {themeOptions.map((t) => (
+            <option key={t.key} value={t.key} className="text-black">
+              {t.label}
+            </option>
+          ))}
+        </select>
       </div>
 
-      <div className="mt-6 p-6 rounded-lg shadow bg-white">
-        <p>Current theme: {theme}</p>
+      {/* Preview of current theme */}
+      <div className={`mt-6 p-6 rounded-lg shadow bg-white`}>
+        <p className="text-black font-semibold">
+          Current theme: {themeOptions.find((t) => t.key === theme)?.label}
+        </p>
       </div>
     </div>
   );
