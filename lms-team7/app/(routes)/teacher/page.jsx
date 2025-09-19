@@ -1,7 +1,7 @@
-import OverviewCards   from "../../../components/OverviewCards";
-import LessonForm      from "../../../components/LessonForm";
-import CourseTable     from "../../../components/CourseTable";
-import ClassroomTable  from "../../../components/ClassroomTable";
+import OverviewCards   from "../../../components/teacher/OverviewCards";
+import LessonForm      from "../../../components/teacher/LessonForm";
+import CourseTable     from "../../../components/teacher/CourseTable";
+import ClassroomTable  from "../../../components/teacher/ClassroomTable";
 
 export default function Page() {
   const teacher = { name: "Dr. Taylor", coursesCount: 3, lessonsCount: 8, studentsCount: 54 };
