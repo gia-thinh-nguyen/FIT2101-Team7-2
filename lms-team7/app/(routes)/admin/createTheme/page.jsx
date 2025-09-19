@@ -1,14 +1,29 @@
 "use client";
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 const page = () => {
   const [color, setColor] = useState('#2563eb')
 
+  // Load saved color on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('themeColor')
+    if (saved) {
+      setColor(saved)
+      document.documentElement.style.setProperty('--theme-bg', saved)
+    }
+  }, [])
+
+  // Save and apply color
+  const handleSave = () => {
+    localStorage.setItem('themeColor', color)
+    document.documentElement.style.setProperty('--theme-bg', color)
+  }
+
   return (
-    <main className="flex flex-col items-center justify-start min-h-screen bg-gradient-to-br from-blue-100 to-blue-300">
+    <main className="flex flex-col items-center justify-start min-h-screen" style={{ background: 'var(--theme-bg, linear-gradient(to bottom right, #bfdbfe, #93c5fd))' }}>
       <section className="w-full max-w-md mt-16 bg-white rounded-xl shadow-lg p-10">
         <h1 className="text-2xl font-extrabold text-blue-800 mb-8 text-center">Change Theme Color</h1>
-        <form className="flex flex-col items-center gap-6">
+        <form className="flex flex-col items-center gap-6" onSubmit={e => e.preventDefault()}>
           <div className="flex flex-col items-center">
             <label htmlFor="themeColor" className="block text-gray-700 font-medium mb-2">
               Pick a Theme Color
@@ -25,10 +40,10 @@ const page = () => {
           </div>
           <button
             type="button"
-            disabled
-            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg opacity-60 cursor-not-allowed transition"
+            onClick={handleSave}
+            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg transition"
           >
-            Save Theme (Demo Only)
+            Save Theme
           </button>
         </form>
         <div className="mt-8 flex flex-col items-center">
