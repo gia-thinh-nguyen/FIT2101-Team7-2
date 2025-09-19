@@ -6,12 +6,6 @@ import { clerkClient } from '@clerk/nextjs/server';
  */
 export async function assignStudentRole(id: string) {
     const client = await clerkClient();
-	const clerkUser = await client.users.getUser(id);
-	// if (!clerkUser.publicMetadata?.role) {
-	// 	await client.users.updateUser(id, {
-	// 		publicMetadata: { role: 'student' },
-	// 	});
-	// }
 	await client.users.updateUser(id, {
 			publicMetadata: { role: 'student' },
 		});
