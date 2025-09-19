@@ -1,10 +1,12 @@
 "use client";
-import { useState } from "react";
+import { useState, MouseEvent } from "react";
 import { useTheme } from "../context/ThemeContext";
+import { useRouter } from "next/navigation";
 
 export default function UnitsPage() {
   const [openUnit, setOpenUnit] = useState<string | null>(null);
   const { cardClass, buttonClass, textClass } = useTheme();
+  const router = useRouter();
 
   const units = [
     { id: "ENG101", name: "Engineering Mathematics" },
@@ -31,17 +33,44 @@ export default function UnitsPage() {
 
           {openUnit === unit.id && (
             <div className="p-4 border-t space-y-3">
-              {[...Array(12).keys()].map((week) => (
-                <div
-                  key={week}
-                  className={`p-3 rounded-md shadow flex justify-between items-center ${cardClass}`}
+              {/* Action Buttons */}
+              <div className="flex justify-end items-center gap-2">
+                <button
+                  className={`px-4 py-2 rounded ${buttonClass}`}
+                  onClick={() => router.push(`/student/grades/${unit.id}`)}
                 >
-                  <span className={textClass}>Week {week + 1}</span>
-                  <button className={`px-3 py-1 rounded ${buttonClass}`}>
-                    View Content
-                  </button>
-                </div>
-              ))}
+                  View Grades
+                </button>
+                <button
+                  className={`px-4 py-2 rounded ${buttonClass}`}
+                  onClick={() => router.push(`/student/assignments/${unit.id}`)}
+                >
+                  View Assignments
+                </button>
+              </div>
+
+              {/* Weeks */}
+              {[...Array(12).keys()].map((week) => {
+                const weekPath = `/student/units/${unit.id}/week/${week + 1}`;
+                return (
+                  <div
+                    key={week}
+                    className={`p-3 rounded-md shadow flex justify-between items-center cursor-pointer ${cardClass}`}
+                    onClick={() => router.push(weekPath)}
+                  >
+                    <span className={textClass}>Week {week + 1}</span>
+                    <button
+                      className={`px-3 py-1 rounded ${buttonClass}`}
+                      onClick={(e: MouseEvent) => {
+                        e.stopPropagation(); // prevent double navigation
+                        router.push(weekPath);
+                      }}
+                    >
+                      View Content
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
