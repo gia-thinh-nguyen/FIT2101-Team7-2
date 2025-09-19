@@ -37,46 +37,6 @@ const page = () => {
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
             </div>
-            <div>
-              <label htmlFor="department" className="block text-gray-700 font-medium mb-1">Department</label>
-              <input
-                type="text"
-                id="department"
-                name="department"
-                required
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-            <div>
-              <label htmlFor="employeeId" className="block text-gray-700 font-medium mb-1">Employee ID</label>
-              <input
-                type="text"
-                id="employeeId"
-                name="employeeId"
-                required
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className="block text-gray-700 font-medium mb-1">Phone Number</label>
-              <input
-                type="tel"
-                id="phone"
-                name="phone"
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
-              />
-            </div>
-            <div>
-              <label htmlFor="role" className="block text-gray-700 font-medium mb-1">Role</label>
-              <input
-                type="text"
-                id="role"
-                name="role"
-                value="teacher"
-                readOnly
-                className="w-full px-4 py-2 border rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
-              />
-            </div>
           </div>
           <button
             type="submit"
