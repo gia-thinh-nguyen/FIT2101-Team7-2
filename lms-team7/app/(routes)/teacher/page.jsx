@@ -20,50 +20,74 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-// Dummy events
-const events = [
-  {
-    title: "Daily Standup",
-    start: new Date(2025, 0, 6, 10, 0), // Jan 6, 2025, 10:00 AM
-    end: new Date(2025, 0, 6, 11, 0),
-    allDay: false,
-  },
-  {
-    title: "Sprint Review",
-    start: new Date(2025, 0, 7, 13, 0),
-    end: new Date(2025, 0, 7, 14, 0),
-    allDay: false,
-  },
-  {
-    title: "Sprint Retrospective",
-    start: new Date(2025, 0, 7, 14, 0),
-    end: new Date(2025, 0, 7, 15, 0),
-    allDay: false,
-  },
-  {
-    title: "Sprint Planning",
-    start: new Date(2025, 0, 8, 13, 0),
-    end: new Date(2025, 0, 8, 14, 0),
-    allDay: false,
-  },
-  {
-    title: "National Holiday",
-    start: new Date(2025, 0, 11, 0, 0),
-    end: new Date(2025, 0, 11, 23, 59),
-    allDay: true,
-  },
-  {
-    title: "Happy Friday!",
-    start: new Date(2025, 0, 10, 10, 0),
-    end: new Date(2025, 0, 10, 11, 0),
-    allDay: false,
-  },
-];
-
 export default function TeacherHomePage() {
-  const courses = 3;
-  const lessons = 18;
+  const courses = 1;
+  const lessons = 3;
   const students = 42;
+
+  const [events, setEvents] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState(null);
+  const [eventDesc, setEventDesc] = useState("");
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editDesc, setEditDesc] = useState("");
+
+  // When a slot is selected, open modal to add event
+  const handleSelectSlot = (slotInfo) => {
+    setSelectedSlot(slotInfo);
+    setEventDesc("");
+    setShowModal(true);
+  };
+
+  // Add event to calendar
+  const handleAddEvent = () => {
+    if (eventDesc.trim() && selectedSlot) {
+      setEvents([
+        ...events,
+        {
+          title: eventDesc,
+          start: selectedSlot.start,
+          end: selectedSlot.end,
+          allDay: false,
+        },
+      ]);
+      setShowModal(false);
+      setSelectedSlot(null);
+      setEventDesc("");
+    }
+  };
+
+  // When an event is clicked, show its details
+  const handleSelectEvent = (event) => {
+    setSelectedEvent(event);
+    setEditDesc(event.title);
+    setShowEventModal(true);
+    setEditMode(false);
+  };
+
+  // Delete event
+  const handleDeleteEvent = () => {
+    setEvents(events.filter(ev => ev !== selectedEvent));
+    setShowEventModal(false);
+    setSelectedEvent(null);
+    setEditMode(false);
+  };
+
+  // Edit event
+  const handleEditEvent = () => {
+    setEditMode(true);
+  };
+
+  // Save edited event
+  const handleSaveEditEvent = () => {
+    setEvents(events.map(ev =>
+      ev === selectedEvent ? { ...ev, title: editDesc } : ev
+    ));
+    setSelectedEvent({ ...selectedEvent, title: editDesc });
+    setEditMode(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 transition-all duration-300"
@@ -96,8 +120,108 @@ export default function TeacherHomePage() {
             defaultView="week"
             views={["week"]}
             style={{ height: 500, width: "100%" }}
+            selectable
+            onSelectSlot={handleSelectSlot}
+            onSelectEvent={handleSelectEvent}
+            step={60}
+            timeslots={1}
           />
         </div>
+        {/* Modal for adding event */}
+        {showModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+              <h2 className="text-lg font-bold mb-4">Add Calendar Event</h2>
+              <p className="mb-2">
+                <strong>
+                  {selectedSlot &&
+                    `${format(selectedSlot.start, "eeee, MMM d, h a")} - ${format(selectedSlot.end, "h a")}`}
+                </strong>
+              </p>
+              <input
+                className="border p-2 mb-4 w-full"
+                placeholder="Description of what you want to complete"
+                value={eventDesc}
+                onChange={e => setEventDesc(e.target.value)}
+              />
+              <div className="flex gap-2">
+                <button
+                  className="bg-green-600 text-white px-4 py-2 rounded"
+                  onClick={handleAddEvent}
+                >
+                  Add
+                </button>
+                <button
+                  className="bg-gray-300 px-4 py-2 rounded"
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+        {/* Modal for viewing/editing/deleting event details */}
+        {showEventModal && selectedEvent && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
+              <h2 className="text-lg font-bold mb-4">Event Details</h2>
+              <p className="mb-2">
+                <strong>
+                  {format(selectedEvent.start, "eeee, MMM d, h a")} - {format(selectedEvent.end, "h a")}
+                </strong>
+              </p>
+              {editMode ? (
+                <input
+                  className="border p-2 mb-4 w-full"
+                  value={editDesc}
+                  onChange={e => setEditDesc(e.target.value)}
+                />
+              ) : (
+                <p className="mb-4">{selectedEvent.title}</p>
+              )}
+              <div className="flex gap-2">
+                {editMode ? (
+                  <>
+                    <button
+                      className="bg-green-600 text-white px-4 py-2 rounded"
+                      onClick={handleSaveEditEvent}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className="bg-gray-300 px-4 py-2 rounded"
+                      onClick={() => setEditMode(false)}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="bg-yellow-500 text-white px-4 py-2 rounded"
+                      onClick={handleEditEvent}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="bg-red-500 text-white px-4 py-2 rounded"
+                      onClick={handleDeleteEvent}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      className="bg-gray-300 px-4 py-2 rounded"
+                      onClick={() => setShowEventModal(false)}
+                    >
+                      Close
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
