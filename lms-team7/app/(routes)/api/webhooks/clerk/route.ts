@@ -1,7 +1,7 @@
 import { verifyWebhook } from '@clerk/nextjs/webhooks'
 import { NextRequest, NextResponse } from 'next/server'
 import { createUser } from '@/actions/user.action'
-import { clerkClient } from '@clerk/nextjs/server'
+import { assignRole } from '@/actions/assignRole.action'
 
 
 export async function POST(req: NextRequest) {
@@ -25,9 +25,8 @@ export async function POST(req: NextRequest) {
             name: `${first_name} ${last_name}`,
             dateEnrolled: created_at,
         }
-        console.log('Creating user:', user);
-
-        await createUser(user);
+        //mongo db
+        const newUser = await createUser(user);
     }
 
     return NextResponse.json({message: 'Webhook received'});
