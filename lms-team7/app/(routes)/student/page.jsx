@@ -1,4 +1,4 @@
-import { checkTeacher } from "@/utils/checkTeacher";
+import { checkTeacher } from "@/utils/checkRole";
 import UnitPieChart from "@/components/UnitPieChart"; //client pie-chart component exported
 
 export default function Page() {
