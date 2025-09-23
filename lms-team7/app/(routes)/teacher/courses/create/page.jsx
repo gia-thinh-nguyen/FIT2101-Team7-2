@@ -4,16 +4,27 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useCreateCourse } from '@/hooks/teacher/useCreateCourse'
+import { useTheme } from '@/context/ThemeContext'
 
 const CreateCoursePage = () => {
   const router = useRouter()
   const { createCourse, loading, error, clearError } = useCreateCourse()
+  const { currentTheme } = useTheme()
   const [formData, setFormData] = useState({
     courseId: '',
     title: '',
     credits: 1
   })
   const [errors, setErrors] = useState({})
+
+  // Dynamic styles based on theme
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff' || currentTheme.hexColor.toLowerCase() === '#fff';
+  const themeTextColor = isWhiteTheme ? '#374151' : currentTheme.hexColor;
+  
+  const buttonStyles = {
+    backgroundColor: themeTextColor,
+    color: '#ffffff'
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
@@ -104,7 +115,12 @@ const CreateCoursePage = () => {
 
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-primary mb-2">Create New Course</h1>
+        <h1 
+          className="text-3xl font-bold mb-2 transition-colors duration-200"
+          style={{ color: themeTextColor }}
+        >
+          Create New Course
+        </h1>
         <p className="text-gray-600">Add a new course to your curriculum</p>
       </div>
 
@@ -196,7 +212,8 @@ const CreateCoursePage = () => {
               </button>
               <button
                 type="submit"
-                className="btn btn-primary"
+                className="btn transition-all duration-200 hover:opacity-90"
+                style={buttonStyles}
                 disabled={loading}
               >
                 {loading ? (

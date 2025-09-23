@@ -4,9 +4,20 @@ import React from 'react'
 import Link from 'next/link'
 import CourseCard from '@/components/teacher/CourseCard'
 import { useGetTeacherCourse } from '@/hooks/teacher/useGetTeacherCourse'
+import { useTheme } from '@/context/ThemeContext'
 
 const page = () => {
   const { courses, loading, error, refetchCourses } = useGetTeacherCourse();
+  const { currentTheme } = useTheme();
+
+  // Dynamic styles based on theme
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff' || currentTheme.hexColor.toLowerCase() === '#fff';
+  const themeTextColor = isWhiteTheme ? '#374151' : currentTheme.hexColor;
+  
+  const buttonStyles = {
+    backgroundColor: themeTextColor,
+    color: isWhiteTheme ? '#ffffff' : '#ffffff'
+  };
 
   if (loading) {
     return (
@@ -34,7 +45,8 @@ const page = () => {
               <div className="text-sm text-red-700">{error}</div>
             </div>
             <button 
-              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors" 
+              className="text-white px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-200 hover:opacity-90" 
+              style={{ backgroundColor: themeTextColor }}
               onClick={refetchCourses}
             >
               Retry
@@ -50,7 +62,12 @@ const page = () => {
       <div className="container mx-auto p-6">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Courses</h1>
+            <h1 
+              className="text-3xl font-bold mb-2 transition-colors duration-200"
+              style={{ color: themeTextColor }}
+            >
+              My Courses
+            </h1>
             <p className="text-gray-600">Manage and view all your assigned courses ({courses.length} course{courses.length !== 1 ? 's' : ''})</p>
           </div>
         <div className="flex gap-2">
@@ -64,7 +81,11 @@ const page = () => {
             </svg>
             Refresh
           </button>
-          <Link href="/teacher/courses/create" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors flex items-center">
+          <Link 
+            href="/teacher/courses/create" 
+            className="px-4 py-2 rounded-md font-medium transition-all duration-200 flex items-center hover:opacity-90"
+            style={buttonStyles}
+          >
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
@@ -96,7 +117,11 @@ const page = () => {
           </div>
           <div className="text-gray-500 text-lg mb-2">No courses yet</div>
           <p className="text-gray-400 mb-4">You haven't created any courses yet. Get started by creating your first course.</p>
-          <Link href="/teacher/courses/create" className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-md font-medium transition-colors">
+          <Link 
+            href="/teacher/courses/create" 
+            className="px-6 py-3 rounded-md font-medium transition-all duration-200 hover:opacity-90"
+            style={buttonStyles}
+          >
             Create Your First Course
           </Link>
         </div>

@@ -1,5 +1,5 @@
 import ThemePage from '@/components/ThemePage'
 
-export default function StudentThemePage() {
+export default function TeacherThemePage() {
   return <ThemePage />
 }

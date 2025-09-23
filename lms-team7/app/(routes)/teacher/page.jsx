@@ -6,6 +6,7 @@ import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import enUS from "date-fns/locale/en-US";
+import { useTheme } from "@/context/ThemeContext";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 const locales = {
@@ -21,6 +22,7 @@ const localizer = dateFnsLocalizer({
 });
 
 export default function TeacherHomePage() {
+  const { currentTheme } = useTheme();
   const courses = 1;
   const lessons = 3;
   const students = 42;
@@ -89,31 +91,75 @@ export default function TeacherHomePage() {
     setEditMode(false);
   };
 
+  // Dynamic styles based on theme
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff' || currentTheme.hexColor.toLowerCase() === '#fff';
+  
+  const themeTextColor = isWhiteTheme ? '#374151' : currentTheme.hexColor;
+  const cardStyles = {
+    backgroundColor: '#ffffff',
+    border: isWhiteTheme ? '1px solid #e5e7eb' : `2px solid ${currentTheme.hexColor}20`
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 transition-all duration-300"
          style={{ marginLeft: '4rem' }}
     >
       <div className="p-8">
-        <h1 className="text-3xl font-bold text-green-700 mb-8">
+        <h1 
+          className="text-3xl font-bold mb-8 transition-colors duration-200"
+          style={{ color: themeTextColor }}
+        >
           Welcome, Aadi Kapoor!
         </h1>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
-            <span className="text-2xl font-semibold text-green-700">{courses}</span>
+          <div 
+            className="shadow-lg rounded-lg p-6 flex flex-col items-center transition-all duration-200 hover:shadow-xl"
+            style={cardStyles}
+          >
+            <span 
+              className="text-2xl font-semibold"
+              style={{ color: themeTextColor }}
+            >
+              {courses}
+            </span>
             <span className="mt-2 text-gray-600">Courses</span>
           </div>
-          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
-            <span className="text-2xl font-semibold text-green-700">{lessons}</span>
+          <div 
+            className="shadow-lg rounded-lg p-6 flex flex-col items-center transition-all duration-200 hover:shadow-xl"
+            style={cardStyles}
+          >
+            <span 
+              className="text-2xl font-semibold"
+              style={{ color: themeTextColor }}
+            >
+              {lessons}
+            </span>
             <span className="mt-2 text-gray-600">Lessons</span>
           </div>
-          <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center">
-            <span className="text-2xl font-semibold text-green-700">{students}</span>
+          <div 
+            className="shadow-lg rounded-lg p-6 flex flex-col items-center transition-all duration-200 hover:shadow-xl"
+            style={cardStyles}
+          >
+            <span 
+              className="text-2xl font-semibold"
+              style={{ color: themeTextColor }}
+            >
+              {students}
+            </span>
             <span className="mt-2 text-gray-600">Students</span>
           </div>
         </div>
         {/* Weekly Calendar */}
-        <div className="bg-white shadow-lg rounded-lg p-6 flex flex-col items-center max-w-4xl mx-auto">
-          <h2 className="text-xl font-semibold text-green-700 mb-4">Weekly Calendar</h2>
+        <div 
+          className="shadow-lg rounded-lg p-6 flex flex-col items-center max-w-4xl mx-auto transition-all duration-200"
+          style={cardStyles}
+        >
+          <h2 
+            className="text-xl font-semibold mb-4 transition-colors duration-200"
+            style={{ color: themeTextColor }}
+          >
+            Weekly Calendar
+          </h2>
           <Calendar
             localizer={localizer}
             events={events}
@@ -146,13 +192,14 @@ export default function TeacherHomePage() {
               />
               <div className="flex gap-2">
                 <button
-                  className="bg-green-600 text-white px-4 py-2 rounded"
+                  className="text-white px-4 py-2 rounded transition-all duration-200 hover:opacity-90"
+                  style={{ backgroundColor: themeTextColor }}
                   onClick={handleAddEvent}
                 >
                   Add
                 </button>
                 <button
-                  className="bg-gray-300 px-4 py-2 rounded"
+                  className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition-all duration-200"
                   onClick={() => setShowModal(false)}
                 >
                   Cancel
@@ -184,13 +231,14 @@ export default function TeacherHomePage() {
                 {editMode ? (
                   <>
                     <button
-                      className="bg-green-600 text-white px-4 py-2 rounded"
+                      className="text-white px-4 py-2 rounded transition-all duration-200 hover:opacity-90"
+                      style={{ backgroundColor: themeTextColor }}
                       onClick={handleSaveEditEvent}
                     >
                       Save
                     </button>
                     <button
-                      className="bg-gray-300 px-4 py-2 rounded"
+                      className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition-all duration-200"
                       onClick={() => setEditMode(false)}
                     >
                       Cancel
@@ -199,19 +247,19 @@ export default function TeacherHomePage() {
                 ) : (
                   <>
                     <button
-                      className="bg-yellow-500 text-white px-4 py-2 rounded"
+                      className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition-all duration-200"
                       onClick={handleEditEvent}
                     >
                       Edit
                     </button>
                     <button
-                      className="bg-red-500 text-white px-4 py-2 rounded"
+                      className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-all duration-200"
                       onClick={handleDeleteEvent}
                     >
                       Delete
                     </button>
                     <button
-                      className="bg-gray-300 px-4 py-2 rounded"
+                      className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition-all duration-200"
                       onClick={() => setShowEventModal(false)}
                     >
                       Close

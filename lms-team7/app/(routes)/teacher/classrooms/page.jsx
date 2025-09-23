@@ -1,8 +1,24 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
+import { useTheme } from "@/context/ThemeContext";
 
 export default function ClassroomLessons() {
+  const { currentTheme } = useTheme();
+  
+  // Dynamic styles based on theme
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff' || currentTheme.hexColor.toLowerCase() === '#fff';
+  const themeTextColor = isWhiteTheme ? '#374151' : currentTheme.hexColor;
+  
+  const buttonStyles = {
+    backgroundColor: themeTextColor,
+    color: '#ffffff'
+  };
+
+  const cardStyles = {
+    backgroundColor: '#ffffff',
+    border: isWhiteTheme ? '1px solid #e5e7eb' : `2px solid ${currentTheme.hexColor}20`
+  };
   const [lessons, setLessons] = useState([
     {
       id: "L101",
@@ -60,9 +76,15 @@ export default function ClassroomLessons() {
 
   return (
     <div className="p-8" style={{ marginLeft: '4rem' }}>
-      <h1 className="text-2xl font-bold text-green-700 mb-6">Lesson Management</h1>
+      <h1 
+        className="text-2xl font-bold mb-6 transition-colors duration-200"
+        style={{ color: themeTextColor }}
+      >
+        Lesson Management
+      </h1>
       <button
-        className="bg-green-600 text-white px-4 py-2 rounded mb-6"
+        className="text-white px-4 py-2 rounded mb-6 transition-all duration-200 hover:opacity-90"
+        style={buttonStyles}
         onClick={() => setShowCreate(true)}
       >
         Create New Lesson
@@ -98,8 +120,19 @@ export default function ClassroomLessons() {
               onChange={e => setNewLesson({ ...newLesson, credit: e.target.value })}
             />
             <div className="flex gap-2 mt-4">
-              <button className="bg-green-600 text-white px-4 py-2 rounded" onClick={handleCreateLesson}>Create</button>
-              <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setShowCreate(false)}>Cancel</button>
+              <button 
+                className="text-white px-4 py-2 rounded transition-all duration-200 hover:opacity-90" 
+                style={buttonStyles} 
+                onClick={handleCreateLesson}
+              >
+                Create
+              </button>
+              <button 
+                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition-all duration-200" 
+                onClick={() => setShowCreate(false)}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
@@ -135,17 +168,36 @@ export default function ClassroomLessons() {
               onChange={e => setNewLesson({ ...newLesson, credit: e.target.value })}
             />
             <div className="flex gap-2 mt-4">
-              <button className="bg-green-600 text-white px-4 py-2 rounded" onClick={handleSaveEditLesson}>Save</button>
-              <button className="bg-gray-300 px-4 py-2 rounded" onClick={() => setShowEdit(false)}>Cancel</button>
+              <button 
+                className="text-white px-4 py-2 rounded transition-all duration-200 hover:opacity-90" 
+                style={buttonStyles} 
+                onClick={handleSaveEditLesson}
+              >
+                Save
+              </button>
+              <button 
+                className="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400 transition-all duration-200" 
+                onClick={() => setShowEdit(false)}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {lessons.map((lesson, idx) => (
-          <div key={lesson.id} className="bg-white shadow-lg rounded-lg p-6 mb-4">
-            <h2 className="text-xl font-bold text-green-700 mb-2">
-              <Link href={`/teacher/classrooms/${lesson.id}`}>
+          <div 
+            key={lesson.id} 
+            className="shadow-lg rounded-lg p-6 mb-4 transition-all duration-200 hover:shadow-xl"
+            style={cardStyles}
+          >
+            <h2 className="text-xl font-bold mb-2">
+              <Link 
+                href={`/teacher/classrooms/${lesson.id}`}
+                className="transition-colors duration-200 hover:opacity-80"
+                style={{ color: themeTextColor }}
+              >
                 {lesson.title}
               </Link>
             </h2>
@@ -155,8 +207,18 @@ export default function ClassroomLessons() {
             <div className="text-gray-600">Students: {lesson.students.length}</div>
             <div className="text-gray-600">Assignments: {lesson.assignments.length}</div>
             <div className="flex gap-2 mt-4">
-              <button className="bg-yellow-500 text-white px-2 py-1 rounded text-xs" onClick={() => handleEditLesson(idx)}>Edit</button>
-              <button className="bg-red-500 text-white px-2 py-1 rounded text-xs" onClick={() => handleDeleteLesson(idx)}>Delete</button>
+              <button 
+                className="bg-yellow-500 text-white px-2 py-1 rounded text-xs hover:bg-yellow-600 transition-all duration-200" 
+                onClick={() => handleEditLesson(idx)}
+              >
+                Edit
+              </button>
+              <button 
+                className="bg-red-500 text-white px-2 py-1 rounded text-xs hover:bg-red-600 transition-all duration-200" 
+                onClick={() => handleDeleteLesson(idx)}
+              >
+                Delete
+              </button>
             </div>
           </div>
         ))}
