@@ -8,6 +8,7 @@ import {
   UserButton,
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from 'next/font/google'
+import { ThemeProvider } from '@/context/ThemeContext'
 import './globals.css'
 
 const geistSans = Geist({
@@ -34,10 +35,12 @@ export default function RootLayout({
     <ClerkProvider afterSignOutUrl="/sign-in">
       <html lang="en" data-theme="light">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          <header className="flex justify-end items-center p-4 gap-4 h-16">
-              <UserButton />
-          </header>
-          {children}
+          <ThemeProvider>
+            <header className="flex justify-end items-center p-4 gap-4 h-16">
+                <UserButton />
+            </header>
+            {children}
+          </ThemeProvider>
         </body>
       </html>
     </ClerkProvider>

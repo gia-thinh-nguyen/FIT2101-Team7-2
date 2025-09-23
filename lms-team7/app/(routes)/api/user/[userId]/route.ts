@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectMongoDB from '../../../../../db/connectMongoDB';
 import User from '../../../../../models/user';
 import Course from '../../../../../models/course';
+import Theme from '../../../../../models/theme';
 
 // Ensure models are registered
 User;
 Course;
+Theme;
 
 export async function GET(
   request: NextRequest,
@@ -25,7 +27,7 @@ export async function GET(
     // Connect to MongoDB
     await connectMongoDB();
 
-    // Find the user by clerkId and populate enrolled courses
+    // Find the user by clerkId and populate enrolled courses and selected theme
     const user = await User.findOne({ clerkId: userId })
       .populate({
         path: 'enrolledCourseIds',
@@ -33,7 +35,13 @@ export async function GET(
         populate: {
           path: 'courseDirectorId',
           select: 'name email'
-        }
+        },
+        strictPopulate: false
+      })
+      .populate({
+        path: 'selectedThemeId',
+        select: 'hexColor description',
+        strictPopulate: false
       });
 
     if (!user) {
@@ -54,6 +62,8 @@ export async function GET(
         dateEnrolled: user.dateEnrolled,
         status: user.status,
         currentCreditPoints: user.currentCreditPoints,
+        selectedThemeId: user.selectedThemeId?._id || null,
+        selectedTheme: user.selectedThemeId || null,
         enrolledCourses: user.enrolledCourseIds || []
       },
       message: 'User data retrieved successfully'
