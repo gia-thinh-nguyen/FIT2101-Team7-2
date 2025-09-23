@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useCreateAssignment } from '@/hooks/teacher/useCreateAssignment'
 
 const CreateAssignmentPage = () => {
   const params = useParams()
   const router = useRouter()
   const courseId = params.courseId
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
+  const { createAssignment, loading, error, clearError } = useCreateAssignment()
 
   const [formData, setFormData] = useState({
     title: '',
@@ -26,64 +26,30 @@ const CreateAssignmentPage = () => {
     
     // Clear error when user starts typing
     if (error) {
-      setError(null)
+      clearError()
     }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
-    setError(null)
+    clearError() // Clear any previous errors
 
     try {
-      // Validation
-      if (!formData.title.trim()) {
-        throw new Error('Assignment title is required')
-      }
-      if (!formData.description.trim()) {
-        throw new Error('Assignment description is required')
-      }
-      if (!formData.dueDate) {
-        throw new Error('Due date is required')
-      }
-      // Check if due date is in the future
-      const dueDate = new Date(formData.dueDate)
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      
-      if (dueDate < today) {
-        throw new Error('Due date must be in the future')
-      }
-
       const assignmentData = {
         ...formData,
         courseId
       }
 
-      console.log('Creating assignment with data:', assignmentData)
-      
-      // TODO: Implement actual API call to create assignment
-      // const response = await fetch('/api/assignments', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(assignmentData)
-      // })
-      
-      // if (!response.ok) {
-      //   throw new Error('Failed to create assignment')
-      // }
+      const result = await createAssignment(assignmentData)
 
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500))
-
-      // Redirect back to course page on success
-      router.push(`/teacher/courses/${courseId}`)
-      
+      if (result.success) {
+        // Redirect back to course page on success
+        router.push(`/teacher/courses/${courseId}`)
+      }
+      // If result.success is false, the error will be handled by the hook
     } catch (err) {
-      console.error('Error creating assignment:', err)
-      setError(err.message || 'Failed to create assignment. Please try again.')
-    } finally {
-      setLoading(false)
+      // Additional error handling if needed
+      console.error('Error in form submission:', err)
     }
   }
 
