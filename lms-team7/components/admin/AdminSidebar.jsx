@@ -28,7 +28,7 @@ export default function AdminSidebar() {
 				{open && (
 					<>
 			<AdminSidebarItem href="/admin" icon={FaHome} label="Home" />
-			<AdminSidebarItem href="/admin/createTeacher" icon={FaUserPlus} label="Create Teacher" />
+			<AdminSidebarItem href="/admin/createUser" icon={FaUserPlus} label="Create User" />
 			<AdminSidebarItem href="/admin/createTheme" icon={FaPalette} label="Create Theme" />
 					</>
 				)}

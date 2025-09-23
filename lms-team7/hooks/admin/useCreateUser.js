@@ -1,15 +1,15 @@
 import { useState } from 'react';
 
-export const useCreateTeacher = () => {
+export const useCreateUser = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  const createTeacher = async (teacherData) => {
-    const { firstName, lastName, username, emailAddress, password } = teacherData;
+  const createUser = async (userData) => {
+    const { firstName, lastName, username, emailAddress, password, role } = userData;
 
     // Basic validation
-    if (!firstName || !lastName || !username || !emailAddress || !password) {
+    if (!firstName || !lastName || !username || !emailAddress || !password || !role) {
       setError('All fields are required');
       return;
     }
@@ -19,12 +19,17 @@ export const useCreateTeacher = () => {
       return;
     }
 
+    if (!['student', 'teacher', 'admin'].includes(role)) {
+      setError('Please select a valid role');
+      return;
+    }
+
     setIsCreating(true);
     setError(null);
     setSuccess(false);
 
     try {
-      const response = await fetch('/api/admin/create-teacher', {
+      const response = await fetch('/api/admin/create-user', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -35,12 +40,13 @@ export const useCreateTeacher = () => {
           username,
           emailAddress,
           password,
+          role,
         }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create teacher account');
+        throw new Error(errorData.error || 'Failed to create user account');
       }
 
       const result = await response.json();
@@ -50,7 +56,7 @@ export const useCreateTeacher = () => {
       return result;
       
     } catch (error) {
-      console.error('Error creating teacher:', error);
+      console.error('Error creating user:', error);
       setError(error.message);
     } finally {
       setIsCreating(false);
@@ -63,7 +69,7 @@ export const useCreateTeacher = () => {
   };
 
   return {
-    createTeacher,
+    createUser,
     isCreating,
     error,
     success,

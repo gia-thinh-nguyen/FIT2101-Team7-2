@@ -6,13 +6,21 @@ export async function POST(request: NextRequest) {
   try {
     const client = await clerkClient();
 
-    // Get the teacher data from request body
-    const { firstName, lastName, username, emailAddress, password } = await request.json();
+    // Get the user data from request body
+    const { firstName, lastName, username, emailAddress, password, role } = await request.json();
     
     // Validate required fields
-    if (!firstName || !lastName || !username || !emailAddress || !password) {
+    if (!firstName || !lastName || !username || !emailAddress || !password || !role) {
       return NextResponse.json(
         { error: 'All fields are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate role
+    if (!['student', 'teacher', 'admin'].includes(role)) {
+      return NextResponse.json(
+        { error: 'Invalid role. Must be student, teacher, or admin' },
         { status: 400 }
       );
     }
@@ -43,36 +51,56 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create the teacher user using Clerk's backend API
-    const newTeacher = await client.users.createUser({
+    // Prepare user data for creation with proper typing
+    const userData: {
+      firstName: string;
+      lastName: string;
+      username: string;
+      emailAddress: string[];
+      password: string;
+      skipPasswordChecks: boolean;
+      publicMetadata: Record<string, any>;
+    } = {
       firstName,
       lastName,
       username,
       emailAddress: [emailAddress],
       password,
-      publicMetadata: {
-        role: 'teacher'
-      },
-      skipPasswordChecks:true
-    });
+      skipPasswordChecks: true,
+      publicMetadata: {}
+    };
+
+    // Set public metadata based on role
+    // Students have no public metadata (empty object)
+    // Teachers and admins have role in public metadata
+    if (role === 'student') {
+      userData.publicMetadata = {};
+    } else {
+      userData.publicMetadata = {
+        role: role
+      };
+    }
+
+    // Create the user using Clerk's backend API
+    const newUser = await client.users.createUser(userData);
 
     return NextResponse.json(
       { 
-        message: 'Teacher account created successfully',
-        teacherId: newTeacher.id,
-        teacher: {
-          id: newTeacher.id,
-          firstName: newTeacher.firstName,
-          lastName: newTeacher.lastName,
-          emailAddress: newTeacher.emailAddresses[0]?.emailAddress,
-          role: 'teacher'
+        message: `${role.charAt(0).toUpperCase() + role.slice(1)} account created successfully`,
+        userId: newUser.id,
+        user: {
+          id: newUser.id,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
+          emailAddress: newUser.emailAddresses[0]?.emailAddress,
+          role: role
         }
       },
       { status: 201 }
     );
 
   } catch (error: any) {
-    console.error('Error creating teacher:', error);
+    console.error('Error creating user:', error);
     console.error('Error details:', {
       message: error.message,
       status: error.status,

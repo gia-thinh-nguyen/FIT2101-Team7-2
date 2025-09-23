@@ -1,9 +1,9 @@
 'use client'
 import React from 'react'
-import { useCreateTeacher } from '@/hooks/admin/useCreateTeacher'
+import { useCreateUser } from '@/hooks/admin/useCreateUser'
 
 const page = () => {
-  const { createTeacher, isCreating, error, success, resetState } = useCreateTeacher();
+  const { createUser, isCreating, error, success, resetState } = useCreateUser();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -13,16 +13,17 @@ const page = () => {
     
     // Get form data
     const formData = new FormData(e.target);
-    const teacherData = {
+    const userData = {
       firstName: formData.get('firstName'),
       lastName: formData.get('lastName'),
       username: formData.get('username'),
       emailAddress: formData.get('email'),
-      password: formData.get('password')
+      password: formData.get('password'),
+      role: formData.get('role')
     };
 
-    // Create teacher
-    const result = await createTeacher(teacherData);
+    // Create user
+    const result = await createUser(userData);
     
     // If successful, optionally clear the form
     if (result) {
@@ -33,7 +34,7 @@ const page = () => {
   return (
     <main className="flex flex-col items-center justify-start min-h-screen bg-gradient-to-br from-blue-100 to-blue-300">
       <section className="w-full max-w-2xl mt-16 bg-white rounded-xl shadow-lg p-10">
-        <h1 className="text-3xl font-extrabold text-blue-800 mb-8 text-center">Create Teacher Account</h1>
+        <h1 className="text-3xl font-extrabold text-blue-800 mb-8 text-center">Create User Account</h1>
         
         {/* Error Message */}
         {error && (
@@ -45,7 +46,7 @@ const page = () => {
         {/* Success Message */}
         {success && (
           <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-            <strong>Success:</strong> Teacher account created successfully!
+            <strong>Success:</strong> User account created successfully!
           </div>
         )}
         
@@ -93,6 +94,20 @@ const page = () => {
                 required
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
               />
+            </div>
+            <div>
+              <label htmlFor="role" className="block text-gray-700 font-medium mb-1">Role</label>
+              <select
+                id="role"
+                name="role"
+                required
+                className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+              >
+                <option value="">Select a role</option>
+                <option value="student">Student</option>
+                <option value="teacher">Teacher</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
             <div>
               <label htmlFor="password" className="block text-gray-700 font-medium mb-1">Password</label>
