@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ArrowLeft, Book, Clock, GraduationCap, FileText, Target, User, BarChart3, Calendar } from 'lucide-react'
+import { ArrowLeft, Book, Clock, GraduationCap, FileText, Target, User, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { useGetStudentCourse } from '@/hooks/student/useGetStudentCourse'
 
@@ -31,24 +31,20 @@ interface Course {
     email: string
   }
   lessonIds: any[] // Using any[] to match the populated response
+  assignmentIds: Assignment[] // Populated assignments
   enrolledStudentIds: any[] // This comes from the API
   description?: string
 }
 
-// Types for dummy data (assignments and grades)
+// Assignment interface matching your API response
 interface Assignment {
+  _id: string
   title: string
-  dueDate: string
-  status: "Submitted" | "Pending" | "Overdue"
   description: string
-}
-
-interface Grade {
-  assignmentName: string
   dueDate: string
-  grade: string
-  maxScore: string
-  feedback: string
+  courseId: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 // Tab Component
@@ -163,183 +159,107 @@ const LessonsTab = ({ course }: { course: Course }) => {
   )
 }
 
-// Assignments Tab Component (using dummy data for now)
-const AssignmentsTab = ({ courseId }: { courseId: string }) => {
-  const [assignments] = useState<Assignment[]>([
-    {
-      title: "Assignment 1",
-      dueDate: "2023-10-01",
-      status: "Submitted",
-      description: "Complete chapters 1-3 exercises",
-    },
-    {
-      title: "Midterm Exam",
-      dueDate: "2023-10-15",
-      status: "Pending",
-      description: "Online midterm examination",
-    },
-    {
-      title: "Final Project",
-      dueDate: "2023-12-01",
-      status: "Overdue",
-      description: "Comprehensive final project submission",
-    },
-  ])
+// Assignments Tab Component (using real assignment data from course)
+const AssignmentsTab = ({ course }: { course: Course }) => {
+  const assignments = course.assignmentIds || []
+
+  // Helper function to determine assignment status based on due date
+  const getAssignmentStatus = (dueDate: string) => {
+    const today = new Date()
+    const due = new Date(dueDate)
+    
+    if (due < today) {
+      return 'overdue'
+    } else if (due.getTime() - today.getTime() <= 7 * 24 * 60 * 60 * 1000) { // Due within 7 days
+      return 'due-soon'
+    }
+    return 'upcoming'
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Assignments</h3>
+        <h3 className="text-lg font-semibold text-gray-900">Assignments & Assessments</h3>
         <span className="text-sm text-gray-500">{assignments.length} assignments</span>
       </div>
       
       {assignments.length > 0 ? (
-        <div className="space-y-3">
-          {assignments.map((assignment, index) => (
-            <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h4 className="font-medium text-gray-900">{assignment.title}</h4>
-                  <p className="text-sm text-gray-600 mt-1">{assignment.description}</p>
+        <div className="space-y-4">
+          {assignments.map((assignment) => {
+            const status = getAssignmentStatus(assignment.dueDate)
+            const dueDate = new Date(assignment.dueDate)
+            const isOverdue = status === 'overdue'
+            const isDueSoon = status === 'due-soon'
+            
+            return (
+              <div key={assignment._id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-2">{assignment.title}</h4>
+                    <p className="text-gray-600 mb-3">{assignment.description}</p>
+                  </div>
+                  <div className="ml-4 text-right">
+                    <span className={`px-3 py-1 text-sm font-medium rounded-full ${
+                      isOverdue 
+                        ? "bg-red-100 text-red-800"
+                        : isDueSoon
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-blue-100 text-blue-800"
+                    }`}>
+                      {isOverdue ? 'Overdue' : isDueSoon ? 'Due Soon' : 'Upcoming'}
+                    </span>
+                  </div>
                 </div>
-                <span
-                  className={`px-2 py-1 text-xs rounded-full ${
-                    assignment.status === "Submitted"
-                      ? "bg-green-100 text-green-800"
-                      : assignment.status === "Pending"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-red-100 text-red-800"
-                  }`}
-                >
-                  {assignment.status}
-                </span>
-              </div>
-              
-              <div className="flex justify-between items-center text-xs text-gray-500">
-                <div className="flex items-center">
-                  <Calendar className="h-3 w-3 mr-1" />
-                  <span>Due: {new Date(assignment.dueDate).toLocaleDateString()}</span>
+                
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                      <span className={isOverdue ? 'text-red-600 font-medium' : ''}>
+                        Due: {dueDate.toLocaleDateString('en-US', { 
+                          weekday: 'short', 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Submission Status - This would normally come from a submission table/API */}
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-500">Status:</span>
+                    <span className="text-yellow-600 font-medium">Not Submitted</span>
+                  </div>
                 </div>
-                {assignment.status === "Submitted" && (
-                  <span className="text-green-600 font-medium">✓ Submitted</span>
-                )}
+
+                {/* Action buttons */}
+                <div className="mt-4 flex space-x-2">
+                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                    Submit Assignment
+                  </button>
+                  <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
+                    View Details
+                  </button>
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500">
-          <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-          <p>No assignments available yet</p>
+        <div className="text-center py-12">
+          <FileText className="h-16 w-16 mx-auto mb-4 text-gray-300" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Assignments Yet</h3>
+          <p className="text-gray-600">Assignments will appear here when your instructor creates them.</p>
         </div>
       )}
     </div>
   )
 }
 
-// Grades Tab Component (using dummy data for now)
-const GradesTab = ({ courseId }: { courseId: string }) => {
-  const [grades] = useState<Grade[]>([
-    {
-      assignmentName: "Assignment 1",
-      dueDate: "2023-10-01",
-      grade: "85",
-      feedback: "Good work! Well structured answers.",
-      maxScore: "100",
-    },
-    {
-      assignmentName: "Midterm Exam",
-      dueDate: "2023-10-15",
-      grade: "92",
-      feedback: "Excellent performance on all sections.",
-      maxScore: "100",
-    },
-    {
-      assignmentName: "Quiz 1",
-      dueDate: "2023-09-20",
-      grade: "78",
-      feedback: "Review chapter 3 concepts.",
-      maxScore: "100",
-    },
-  ])
 
-  const averageGrade = grades.length > 0 
-    ? grades.reduce((acc, grade) => acc + (parseInt(grade.grade) / parseInt(grade.maxScore)) * 100, 0) / grades.length 
-    : 0
-
-  return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-900">Grades</h3>
-        <div className="text-right">
-          <div className="text-sm text-gray-500">Current Average</div>
-          <div className="text-xl font-bold text-blue-600">{averageGrade.toFixed(1)}%</div>
-        </div>
-      </div>
-      
-      {grades.length > 0 ? (
-        <div className="bg-white rounded-lg shadow overflow-x-auto">
-          <table className="min-w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Assignment
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Due Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Grade
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Feedback
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {grades.map((grade, index) => {
-                const percentage = (parseInt(grade.grade) / parseInt(grade.maxScore)) * 100
-                return (
-                  <tr key={index} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">
-                      {grade.assignmentName}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(grade.dueDate).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <span className="text-sm font-medium text-gray-900">
-                          {grade.grade}/{grade.maxScore}
-                        </span>
-                        <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
-                          percentage >= 90 ? 'bg-green-100 text-green-800' :
-                          percentage >= 80 ? 'bg-blue-100 text-blue-800' :
-                          percentage >= 70 ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }`}>
-                          {percentage.toFixed(0)}%
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-600 max-w-xs truncate">
-                      {grade.feedback}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <div className="text-center py-8 text-gray-500">
-          <BarChart3 className="h-12 w-12 mx-auto mb-2 opacity-50" />
-          <p>No grades available yet</p>
-        </div>
-      )}
-    </div>
-  )
-}
 
 export default function CourseDetailsPage({ params }: { params: Promise<{ courseId: string }> }) {
   // Unwrap the params Promise using React.use()
@@ -510,13 +430,6 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
             >
               Assignments
             </TabButton>
-            <TabButton
-              active={activeTab === 'grades'}
-              onClick={() => setActiveTab('grades')}
-              icon={BarChart3}
-            >
-              Grades
-            </TabButton>
           </div>
 
           {/* Tab Content */}
@@ -525,10 +438,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
               <LessonsTab course={typedCourse} />
             )}
             {activeTab === 'assignments' && (
-              <AssignmentsTab courseId={courseId} />
-            )}
-            {activeTab === 'grades' && (
-              <GradesTab courseId={courseId} />
+              <AssignmentsTab course={typedCourse} />
             )}
           </div>
         </div>

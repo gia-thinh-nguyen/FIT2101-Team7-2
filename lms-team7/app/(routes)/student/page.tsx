@@ -52,13 +52,6 @@ const CourseCard = ({ course }: { course: Course }) => {
           <span>Credits:</span>
           <span className="font-medium text-gray-900">{course.credits}</span>
         </div>
-        
-        <div className="flex justify-between">
-          <span>Lessons:</span>
-          <span className="font-medium text-gray-900">
-            {course.lessonIds?.length || 0} lessons
-          </span>
-        </div>
       </div>
 
       {course.description && (
