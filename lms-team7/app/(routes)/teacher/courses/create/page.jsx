@@ -91,9 +91,10 @@ const CreateCoursePage = () => {
   }
 
   return (
-    <div className="container mx-auto p-6">
-      {/* Breadcrumb */}
-      <div className="breadcrumbs text-sm mb-6">
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto p-6">
+        {/* Breadcrumb */}
+        <div className="breadcrumbs text-sm mb-6">
         <ul>
           <li><Link href="/teacher">Dashboard</Link></li>
           <li><Link href="/teacher/courses">Courses</Link></li>
@@ -232,6 +233,7 @@ const CreateCoursePage = () => {
             <p><strong>Credits:</strong> Academic credit hours</p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

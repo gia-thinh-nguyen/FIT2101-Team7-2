@@ -6,6 +6,7 @@ import { useGetSpecificCourse } from '@/hooks/teacher/useGetSpecificCourse'
 import { useGetUserOffRole } from '@/hooks/useGetUserOffRole'
 import CourseDirector from '@/components/teacher/CourseDirector'
 import LessonCard from '@/components/teacher/LessonCard'
+import AssignmentCard from '@/components/teacher/AssignmentCard'
 import EnrolledStudents from '@/components/teacher/EnrolledStudents'
 
 const CoursePage = () => {
@@ -22,6 +23,18 @@ const CoursePage = () => {
       refetchCourse()
     } catch (error) {
       console.error('Error deleting lesson:', error)
+      throw error // Re-throw to let the component handle the error
+    }
+  }
+
+  const handleDeleteAssignment = async (assignmentId) => {
+    try {
+      // TODO: Implement delete assignment API call
+      console.log('Deleting assignment with ID:', assignmentId)
+      // After successful deletion, refetch the course data
+      refetchCourse()
+    } catch (error) {
+      console.error('Error deleting assignment:', error)
       throw error // Re-throw to let the component handle the error
     }
   }
@@ -112,6 +125,18 @@ const CoursePage = () => {
             <div className="text-2xl font-bold text-gray-900">{course.lessonIds?.length || 0}</div>
           </div>
         </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="stat bg-blue-50 rounded-lg p-4">
+            <div className="text-sm font-medium text-blue-600">Total Assignments</div>
+            <div className="text-2xl font-bold text-blue-800">{course.assignmentIds?.length || 0}</div>
+          </div>
+          
+          <div className="stat bg-green-50 rounded-lg p-4">
+            <div className="text-sm font-medium text-green-600">Enrolled Students</div>
+            <div className="text-2xl font-bold text-green-800">{course.enrolledStudentIds?.length || 0}</div>
+          </div>
+        </div>
       </div>
 
       {/* Course Director */}
@@ -136,9 +161,9 @@ const CoursePage = () => {
       />
 
       {/* Lessons */}
-      <div className="bg-white rounded-lg shadow-xl p-6">
+      <div className="bg-white rounded-lg shadow-xl p-6 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-900">Course Lessons</h2>
+          <h2 className="text-xl font-bold text-gray-900">Lessons</h2>
           <Link href={`/teacher/courses/${courseId}/lessons/create`} className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors">Add Lesson</Link>
         </div>
         
@@ -155,6 +180,31 @@ const CoursePage = () => {
           ) : (
             <div className="text-center py-8 text-gray-500">
               No lessons available for this course yet.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Assignments */}
+      <div className="bg-white rounded-lg shadow-xl p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-900">Assignments</h2>
+          <Link href={`/teacher/courses/${courseId}/assignments/create`} className="bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors">Add Assignment</Link>
+        </div>
+        
+        <div className="space-y-3">
+          {course.assignmentIds && course.assignmentIds.length > 0 ? (
+            course.assignmentIds.map((assignment, index) => (
+              <AssignmentCard
+                key={assignment._id || index}
+                assignment={assignment}
+                index={index}
+                onDelete={handleDeleteAssignment}
+              />
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              No assignments available for this course yet.
             </div>
           )}
         </div>
