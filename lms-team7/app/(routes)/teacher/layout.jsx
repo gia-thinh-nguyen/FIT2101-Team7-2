@@ -31,20 +31,7 @@ export default function TeacherLayout({ children }) {
 
       {/* Main content area */}
       <div className="flex-1 flex flex-col">
-        {/* Header */}
-        <header 
-          className="border-b border-gray-200 px-4 py-3 shadow-sm transition-colors duration-200"
-          style={headerStyles}
-        >
-          <div className="flex items-center justify-between">
-            <h1 
-              className="text-xl font-semibold transition-colors duration-200"
-              style={headerTextStyles}
-            >
-              Teacher Dashboard
-            </h1>
-          </div>
-        </header>
+        
 
         <main className="flex-1 overflow-auto">{children}</main>
       </div>

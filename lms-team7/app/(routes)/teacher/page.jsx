@@ -1,12 +1,15 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import format from "date-fns/format";
 import parse from "date-fns/parse";
 import startOfWeek from "date-fns/startOfWeek";
 import getDay from "date-fns/getDay";
 import enUS from "date-fns/locale/en-US";
+import { FaBook, FaChalkboardTeacher, FaPalette } from "react-icons/fa";
 import { useTheme } from "@/context/ThemeContext";
+import { useGetUser } from "@/hooks/useGetUser";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
 const locales = {
@@ -23,9 +26,7 @@ const localizer = dateFnsLocalizer({
 
 export default function TeacherHomePage() {
   const { currentTheme } = useTheme();
-  const courses = 1;
-  const lessons = 3;
-  const students = 42;
+  const { user, loading: userLoading } = useGetUser();
 
   const [events, setEvents] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -101,52 +102,58 @@ export default function TeacherHomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 transition-all duration-300"
-         style={{ marginLeft: '4rem' }}
-    >
-      <div className="p-8">
-        <h1 
-          className="text-3xl font-bold mb-8 transition-colors duration-200"
-          style={{ color: themeTextColor }}
-        >
-          Welcome, Aadi Kapoor!
-        </h1>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
-          <div 
-            className="shadow-lg rounded-lg p-6 flex flex-col items-center transition-all duration-200 hover:shadow-xl"
-            style={cardStyles}
-          >
-            <span 
-              className="text-2xl font-semibold"
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-8 gap-4">
+          <div>
+            <h1 
+              className="text-3xl font-bold mb-2 transition-colors duration-200"
               style={{ color: themeTextColor }}
             >
-              {courses}
-            </span>
-            <span className="mt-2 text-gray-600">Courses</span>
+              Welcome back, {userLoading ? "..." : user ? user.name : "Teacher"}!
+            </h1>
+            <p className="text-gray-600">Ready to manage your classes for today?</p>
           </div>
-          <div 
-            className="shadow-lg rounded-lg p-6 flex flex-col items-center transition-all duration-200 hover:shadow-xl"
-            style={cardStyles}
-          >
-            <span 
-              className="text-2xl font-semibold"
-              style={{ color: themeTextColor }}
+          
+          {/* Quick Navigation Links */}
+          <div className="flex flex-wrap gap-3">
+            <Link 
+              href="/teacher/courses" 
+              className="group flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-md hover:scale-105 text-sm font-medium"
+              style={{
+                backgroundColor: '#ffffff',
+                border: isWhiteTheme ? '1px solid #e5e7eb' : `2px solid ${currentTheme.hexColor}20`,
+                color: themeTextColor
+              }}
             >
-              {lessons}
-            </span>
-            <span className="mt-2 text-gray-600">Lessons</span>
-          </div>
-          <div 
-            className="shadow-lg rounded-lg p-6 flex flex-col items-center transition-all duration-200 hover:shadow-xl"
-            style={cardStyles}
-          >
-            <span 
-              className="text-2xl font-semibold"
-              style={{ color: themeTextColor }}
+              <FaBook className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+              <span>Courses</span>
+            </Link>
+            <Link 
+              href="/teacher/classrooms" 
+              className="group flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-md hover:scale-105 text-sm font-medium"
+              style={{
+                backgroundColor: '#ffffff',
+                border: isWhiteTheme ? '1px solid #e5e7eb' : `2px solid ${currentTheme.hexColor}20`,
+                color: themeTextColor
+              }}
             >
-              {students}
-            </span>
-            <span className="mt-2 text-gray-600">Students</span>
+              <FaChalkboardTeacher className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+              <span>Classrooms</span>
+            </Link>
+            <Link 
+              href="/teacher/theme" 
+              className="group flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 hover:shadow-md hover:scale-105 text-sm font-medium"
+              style={{
+                backgroundColor: '#ffffff',
+                border: isWhiteTheme ? '1px solid #e5e7eb' : `2px solid ${currentTheme.hexColor}20`,
+                color: themeTextColor
+              }}
+            >
+              <FaPalette className="w-4 h-4 group-hover:scale-110 transition-transform duration-200" />
+              <span>Theme</span>
+            </Link>
           </div>
         </div>
         {/* Weekly Calendar */}
