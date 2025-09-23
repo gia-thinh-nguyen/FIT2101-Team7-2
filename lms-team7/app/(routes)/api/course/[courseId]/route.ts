@@ -3,6 +3,11 @@ import connectMongoDB from '../../../../../db/connectMongoDB';
 import Course from '../../../../../models/course';
 import User from '../../../../../models/user';
 import Lesson from '../../../../../models/lessons';
+import Assignment from '../../../../../models/assignment';
+
+// Ensure models are registered
+Lesson;
+Assignment;
 
 export async function GET(
   request: NextRequest,
@@ -25,7 +30,8 @@ export async function GET(
     // Find the course by courseId (string field, not ObjectId)
     const course = await Course.findOne({ courseId })
       .populate('courseDirectorId', 'name email')
-    //   .populate('lessonIds')
+      .populate('lessonIds')
+      .populate('assignmentIds')
       .populate('enrolledStudentIds', 'name email');
 
     if (!course) {
