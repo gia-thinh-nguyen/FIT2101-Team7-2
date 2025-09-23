@@ -4,10 +4,8 @@ import User from '../../../../../models/user';
 import Course from '../../../../../models/course';
 import Theme from '../../../../../models/theme';
 
-// Ensure models are registered
-User;
-Course;
-Theme;
+// Ensure models are registered (these will be tree-shaken if unused)
+// User, Course, and Theme models are imported to register them with Mongoose
 
 export async function GET(
   request: NextRequest,
@@ -69,11 +67,11 @@ export async function GET(
       message: 'User data retrieved successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching user:', error);
     
     // Handle specific mongoose errors
-    if (error.name === 'CastError') {
+    if (error && typeof error === 'object' && 'name' in error && error.name === 'CastError') {
       return NextResponse.json(
         { error: 'Invalid user ID format' },
         { status: 400 }

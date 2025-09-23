@@ -247,8 +247,8 @@ export default function ThemeSelectionPage() {
           <h3 className="text-lg font-semibold text-blue-900 mb-2">How to use themes</h3>
           <div className="text-blue-800 space-y-1">
             <p>- Click on any theme card to select it</p>
-            <p>- Preview your selection in the "Current Selection" section above</p>
-            <p>- Click "Apply Theme" to save your preference</p>
+            <p>- Preview your selection in the &quot;Current Selection&quot; section above</p>
+            <p>- Click &quot;Apply Theme&quot; to save your preference</p>
             <p>- Your selected theme will be applied across the entire application</p>
           </div>
         </div>

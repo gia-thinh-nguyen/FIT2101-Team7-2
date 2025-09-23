@@ -13,7 +13,7 @@ interface Course {
   courseDirectorId?: {
     name: string
   }
-  lessonIds?: any[]
+  lessonIds?: string[]
 }
 
 interface User {

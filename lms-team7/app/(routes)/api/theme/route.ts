@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import connectMongoDB from '../../../../db/connectMongoDB';
 import Theme from '../../../../models/theme';
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // Connect to MongoDB
     await connectMongoDB();
@@ -62,11 +62,11 @@ export async function POST(request: NextRequest) {
       message: 'Theme created successfully'
     });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error creating theme:', error);
     
     // Handle duplicate key error (unique constraint on hexColor)
-    if (error.code === 11000) {
+    if (error && typeof error === 'object' && 'code' in error && error.code === 11000) {
       return NextResponse.json(
         { error: 'Theme with this color already exists' },
         { status: 409 }
