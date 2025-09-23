@@ -10,10 +10,12 @@ const page = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-          <span className="ml-4 text-lg text-gray-700">Loading your courses...</span>
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto p-6">
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+            <span className="ml-4 text-lg text-gray-700">Loading your courses...</span>
+          </div>
         </div>
       </div>
     );
@@ -21,33 +23,36 @@ const page = () => {
 
   if (error) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-2xl mx-auto flex items-center gap-4">
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          <div className="flex-1">
-            <h3 className="font-bold text-red-800">Error loading courses</h3>
-            <div className="text-sm text-red-700">{error}</div>
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto p-6">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 max-w-2xl mx-auto flex items-center gap-4">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-red-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div className="flex-1">
+              <h3 className="font-bold text-red-800">Error loading courses</h3>
+              <div className="text-sm text-red-700">{error}</div>
+            </div>
+            <button 
+              className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors" 
+              onClick={refetchCourses}
+            >
+              Retry
+            </button>
           </div>
-          <button 
-            className="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md text-sm font-medium transition-colors" 
-            onClick={refetchCourses}
-          >
-            Retry
-          </button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6">
-      <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-blue-600 mb-2">My Courses</h1>
-          <p className="text-gray-600">Manage and view all your assigned courses ({courses.length} course{courses.length !== 1 ? 's' : ''})</p>
-        </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto p-6">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Courses</h1>
+            <p className="text-gray-600">Manage and view all your assigned courses ({courses.length} course{courses.length !== 1 ? 's' : ''})</p>
+          </div>
         <div className="flex gap-2">
           <button 
             className="border border-gray-300 text-gray-700 hover:bg-gray-50 px-4 py-2 rounded-md font-medium transition-colors flex items-center disabled:opacity-50" 
@@ -96,6 +101,7 @@ const page = () => {
           </Link>
         </div>
       )}
+      </div>
     </div>
   )
 }
