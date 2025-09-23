@@ -1,6 +1,7 @@
 'use client'
 
 import { useGetUser } from '@/hooks/useGetUser'
+import { useTheme } from '@/context/ThemeContext'
 import { UserPlus } from 'lucide-react'
 
 interface Course {
@@ -28,42 +29,74 @@ interface User {
 
 // Updated Course Detail Component (now simplified for list view)
 const CourseDetail = ({ course }: { course: Course }) => {
+  const { currentTheme } = useTheme();
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff';
+
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-200">
+    <div 
+      className="rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border"
+      style={{ 
+        backgroundColor: currentTheme.hexColor,
+        borderColor: `${currentTheme.hexColor}30`
+      }}
+    >
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">{course.title}</h3>
-          <p className="text-sm text-blue-600 font-medium">{course.courseId}</p>
+          <h3 
+            className="text-lg font-semibold"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
+            {course.title}
+          </h3>
+          <p 
+            className="text-sm font-medium"
+            style={{ color: isWhiteTheme ? '#2563eb' : '#93c5fd' }}
+          >
+            {course.courseId}
+          </p>
         </div>
         <div
-          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            course.status === 'active'
-              ? 'bg-green-100 text-green-800'
-              : 'bg-gray-100 text-gray-800'
-          }`}
+          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+          style={{
+            backgroundColor: course.status === 'active' 
+              ? (isWhiteTheme ? '#dcfce7' : 'rgba(34,197,94,0.2)')
+              : (isWhiteTheme ? '#f3f4f6' : 'rgba(255,255,255,0.2)'),
+            color: course.status === 'active'
+              ? (isWhiteTheme ? '#166534' : '#22c55e')
+              : (isWhiteTheme ? '#374151' : '#e5e7eb')
+          }}
         >
           {course.status}
         </div>
       </div>
 
-      <div className="space-y-2 text-sm text-gray-600 mb-4">
+      <div className="space-y-2 text-sm mb-4" style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}>
         <div className="flex justify-between">
           <span>Coordinator:</span>
-          <span className="font-medium text-gray-900">
+          <span 
+            className="font-medium"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
             {course.courseDirectorId?.name || 'Not assigned'}
           </span>
         </div>
 
         <div className="flex justify-between">
           <span>Credits:</span>
-          <span className="font-medium text-gray-900">{course.credits}</span>
+          <span 
+            className="font-medium"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
+            {course.credits}
+          </span>
         </div>
-
-
       </div>
 
       {course.description && (
-        <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+        <p 
+          className="text-sm mb-4 line-clamp-3"
+          style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+        >
           {course.description}
         </p>
       )}
@@ -72,7 +105,17 @@ const CourseDetail = ({ course }: { course: Course }) => {
         {/* Single View Details Button */}
         <a
           href={`/student/courses/${course.courseId}`}
-          className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md text-sm font-medium transition-colors text-center block"
+          className="py-2 px-4 rounded-md text-sm font-medium transition-colors text-center block"
+          style={{
+            backgroundColor: isWhiteTheme ? '#2563eb' : 'rgba(37,99,235,0.2)',
+            color: isWhiteTheme ? '#ffffff' : '#60a5fa'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = isWhiteTheme ? '#1d4ed8' : 'rgba(37,99,235,0.3)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = isWhiteTheme ? '#2563eb' : 'rgba(37,99,235,0.2)';
+          }}
         >
           View Course Details
         </a>
@@ -86,6 +129,8 @@ const CourseDetail = ({ course }: { course: Course }) => {
 // Main Courses List Page (unchanged functionality)
 export default function CoursesPage() {
   const { user, loading, error, refetch } = useGetUser()
+  const { currentTheme } = useTheme()
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff'
 
   if (loading) {
     return (
@@ -138,24 +183,53 @@ export default function CoursesPage() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-200">
+        <div 
+          className="rounded-lg shadow-md p-6 mb-8 border"
+          style={{ 
+            backgroundColor: currentTheme.hexColor,
+            borderColor: `${currentTheme.hexColor}30`
+          }}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">My Courses</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 
+                className="text-3xl font-bold"
+                style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+              >
+                My Courses
+              </h1>
+              <p 
+                className="mt-1"
+                style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+              >
                 Manage and access your enrolled courses
               </p>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
-                <div className="text-sm text-gray-500">Total Enrolled</div>
-                <div className="text-2xl font-bold text-blue-600">
+                <div 
+                  className="text-sm"
+                  style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+                >
+                  Total Enrolled
+                </div>
+                <div 
+                  className="text-2xl font-bold"
+                  style={{ color: isWhiteTheme ? '#2563eb' : '#60a5fa' }}
+                >
                   {enrolledCourses.length}
                 </div>
               </div>
               <button
                 onClick={refetch}
-                className="text-gray-500 hover:text-gray-700 transition-colors"
+                className="transition-colors"
+                style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = isWhiteTheme ? '#374151' : '#ffffff';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = isWhiteTheme ? '#6b7280' : '#d1d5db';
+                }}
                 title="Refresh"
               >
                 <svg
@@ -178,8 +252,19 @@ export default function CoursesPage() {
         </div>
 
         {/* Enrolled Courses */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Enrolled Courses</h2>
+        <div 
+          className="rounded-lg shadow-md p-6 border"
+          style={{ 
+            backgroundColor: currentTheme.hexColor,
+            borderColor: `${currentTheme.hexColor}30`
+          }}
+        >
+          <h2 
+            className="text-2xl font-bold mb-6"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
+            Enrolled Courses
+          </h2>
 
           {enrolledCourses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -192,12 +277,35 @@ export default function CoursesPage() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <UserPlus className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Courses Enrolled</h3>
-              <p className="text-gray-500 mb-6">Start your learning journey by enrolling in courses.</p>
+              <UserPlus 
+                className="h-12 w-12 mx-auto mb-4" 
+                style={{ color: isWhiteTheme ? '#9ca3af' : 'rgba(255,255,255,0.4)' }}
+              />
+              <h3 
+                className="text-lg font-medium mb-2"
+                style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+              >
+                No Courses Enrolled
+              </h3>
+              <p 
+                className="mb-6"
+                style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+              >
+                Start your learning journey by enrolling in courses.
+              </p>
               <a
                 href="/student/enrol"
-                className="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md transition-colors"
+                className="inline-flex items-center px-4 py-2 font-medium rounded-md transition-colors"
+                style={{
+                  backgroundColor: isWhiteTheme ? '#2563eb' : 'rgba(37,99,235,0.2)',
+                  color: isWhiteTheme ? '#ffffff' : '#60a5fa'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = isWhiteTheme ? '#1d4ed8' : 'rgba(37,99,235,0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = isWhiteTheme ? '#2563eb' : 'rgba(37,99,235,0.2)';
+                }}
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 Enroll in Courses

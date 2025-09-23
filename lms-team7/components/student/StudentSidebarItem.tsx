@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "@/context/ThemeContext";
 
 interface StudentSidebarItemProps {
   href: string;
@@ -11,17 +12,43 @@ interface StudentSidebarItemProps {
 export const StudentSidebarItem = ({ href, icon, label, collapsed }: StudentSidebarItemProps) => {
   const pathname = usePathname();
   const isActive = pathname === href;
+  const { currentTheme } = useTheme();
+
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff';
 
   return (
     <Link
       href={href}
-      className={`flex items-center gap-3 p-3 rounded-lg transition-colors group ${
-        isActive
-          ? "bg-blue-100 text-blue-700 font-medium"
-          : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-      }`}
+      className="flex items-center gap-3 p-3 rounded-lg transition-colors group"
+      style={{
+        backgroundColor: isActive 
+          ? (isWhiteTheme ? '#dbeafe' : 'rgba(255,255,255,0.15)')
+          : 'transparent',
+        color: isActive 
+          ? (isWhiteTheme ? '#1d4ed8' : '#ffffff')
+          : (isWhiteTheme ? '#374151' : '#e5e7eb')
+      }}
+      onMouseEnter={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.backgroundColor = isWhiteTheme ? '#f3f4f6' : 'rgba(255,255,255,0.1)';
+          e.currentTarget.style.color = isWhiteTheme ? '#111827' : '#ffffff';
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) {
+          e.currentTarget.style.backgroundColor = 'transparent';
+          e.currentTarget.style.color = isWhiteTheme ? '#374151' : '#e5e7eb';
+        }
+      }}
     >
-      <div className={`flex-shrink-0 ${isActive ? 'text-blue-700' : 'text-gray-500 group-hover:text-gray-700'}`}>
+      <div 
+        className="flex-shrink-0"
+        style={{
+          color: isActive 
+            ? (isWhiteTheme ? '#1d4ed8' : '#ffffff')
+            : (isWhiteTheme ? '#6b7280' : '#d1d5db')
+        }}
+      >
         {icon}
       </div>
       {!collapsed && (

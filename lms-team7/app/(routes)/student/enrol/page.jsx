@@ -3,44 +3,104 @@
 import { useState } from 'react'
 import { useGetAvailableCourses } from '@/hooks/student/useGetAvailableCourses'
 import { useEnrollCourse } from '@/hooks/student/useEnrollCourse'
+import { useTheme } from '@/context/ThemeContext'
 
 // Course Card Component
 const CourseCard = ({ course, onEnroll, isEnrolling }) => {
+  const { currentTheme } = useTheme();
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff';
+
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-200">
+    <div 
+      className="rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border"
+      style={{ 
+        backgroundColor: currentTheme.hexColor,
+        borderColor: `${currentTheme.hexColor}30`
+      }}
+    >
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-xl font-semibold text-gray-900">{course.title}</h3>
-          <p className="text-sm text-blue-600 font-medium">{course.courseId}</p>
+          <h3 
+            className="text-xl font-semibold"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
+            {course.title}
+          </h3>
+          <p 
+            className="text-sm font-medium"
+            style={{ color: isWhiteTheme ? '#2563eb' : '#93c5fd' }}
+          >
+            {course.courseId}
+          </p>
         </div>
-        <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+        <div 
+          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+          style={{
+            backgroundColor: isWhiteTheme ? '#dcfce7' : 'rgba(34,197,94,0.2)',
+            color: isWhiteTheme ? '#166534' : '#22c55e'
+          }}
+        >
           Available
         </div>
       </div>
       
       <div className="space-y-3 mb-6">
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Coordinator:</span>
-          <span className="text-sm font-medium text-gray-900">
+          <span 
+            className="text-sm"
+            style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+          >
+            Coordinator:
+          </span>
+          <span 
+            className="text-sm font-medium"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
             {course.courseDirectorId?.name || 'Not assigned'}
           </span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Credits:</span>
-          <span className="text-sm font-medium text-gray-900">{course.credits}</span>
+          <span 
+            className="text-sm"
+            style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+          >
+            Credits:
+          </span>
+          <span 
+            className="text-sm font-medium"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
+            {course.credits}
+          </span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Lessons:</span>
-          <span className="text-sm font-medium text-gray-900">
+          <span 
+            className="text-sm"
+            style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+          >
+            Lessons:
+          </span>
+          <span 
+            className="text-sm font-medium"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
             {course.lessonIds?.length || 0} lessons
           </span>
         </div>
         
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">Enrolled Students:</span>
-          <span className="text-sm font-medium text-gray-900">
+          <span 
+            className="text-sm"
+            style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+          >
+            Enrolled Students:
+          </span>
+          <span 
+            className="text-sm font-medium"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
             {course.enrolledStudentIds?.length || 0} students
           </span>
         </div>
@@ -49,11 +109,26 @@ const CourseCard = ({ course, onEnroll, isEnrolling }) => {
       <button
         onClick={() => onEnroll(course._id)}
         disabled={isEnrolling}
-        className={`w-full py-2 px-4 rounded-md font-medium transition-colors ${
-          isEnrolling
-            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-            : 'bg-blue-600 hover:bg-blue-700 text-white'
-        }`}
+        className="w-full py-2 px-4 rounded-md font-medium transition-colors"
+        style={{
+          backgroundColor: isEnrolling
+            ? (isWhiteTheme ? '#d1d5db' : 'rgba(255,255,255,0.2)')
+            : (isWhiteTheme ? '#2563eb' : 'rgba(37,99,235,0.2)'),
+          color: isEnrolling
+            ? (isWhiteTheme ? '#6b7280' : '#9ca3af')
+            : (isWhiteTheme ? '#ffffff' : '#60a5fa'),
+          cursor: isEnrolling ? 'not-allowed' : 'pointer'
+        }}
+        onMouseEnter={(e) => {
+          if (!isEnrolling) {
+            e.target.style.backgroundColor = isWhiteTheme ? '#1d4ed8' : 'rgba(37,99,235,0.3)';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isEnrolling) {
+            e.target.style.backgroundColor = isWhiteTheme ? '#2563eb' : 'rgba(37,99,235,0.2)';
+          }
+        }}
       >
         {isEnrolling ? 'Enrolling...' : 'Enroll in Course'}
       </button>
@@ -64,6 +139,8 @@ const CourseCard = ({ course, onEnroll, isEnrolling }) => {
 export default function EnrolPage() {
   const { courses, loading, error, refetch } = useGetAvailableCourses()
   const { enrollInCourse, loading: enrollLoading, error: enrollError, setError } = useEnrollCourse()
+  const { currentTheme } = useTheme()
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff'
   const [enrollingCourseId, setEnrollingCourseId] = useState(null)
   const [successMessage, setSuccessMessage] = useState('')
 
@@ -125,17 +202,38 @@ export default function EnrolPage() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-200">
+        <div 
+          className="rounded-lg shadow-md p-6 mb-8 border"
+          style={{ 
+            backgroundColor: currentTheme.hexColor,
+            borderColor: `${currentTheme.hexColor}30`
+          }}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Course Enrollment</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 
+                className="text-3xl font-bold"
+                style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+              >
+                Course Enrollment
+              </h1>
+              <p 
+                className="mt-1"
+                style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+              >
                 Enroll in available courses to expand your learning
               </p>
             </div>
             <button
               onClick={refetch}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
+              className="transition-colors"
+              style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+              onMouseEnter={(e) => {
+                e.target.style.color = isWhiteTheme ? '#374151' : '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.color = isWhiteTheme ? '#6b7280' : '#d1d5db';
+              }}
               title="Refresh courses"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

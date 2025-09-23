@@ -4,8 +4,11 @@ import User from '../../../../../models/user';
 import Course from '../../../../../models/course';
 import Theme from '../../../../../models/theme';
 
-// Ensure models are registered (these will be tree-shaken if unused)
-// User, Course, and Theme models are imported to register them with Mongoose
+// Ensure models are registered with Mongoose
+// These lines prevent tree-shaking and ensure models are available for populate
+void User;
+void Course;
+void Theme;
 
 export async function GET(
   request: NextRequest,

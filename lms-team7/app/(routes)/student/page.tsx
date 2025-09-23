@@ -1,6 +1,7 @@
 'use client'
 
 import { useGetUser } from '@/hooks/useGetUser'
+import { useTheme } from '@/context/ThemeContext'
 
 // Types
 interface Course {
@@ -26,36 +27,74 @@ interface User {
 
 // Course Card Component
 const CourseCard = ({ course }: { course: Course }) => {
+  const { currentTheme } = useTheme();
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff';
+
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border border-gray-200">
+    <div 
+      className="rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 border"
+      style={{ 
+        backgroundColor: currentTheme.hexColor,
+        borderColor: `${currentTheme.hexColor}30`
+      }}
+    >
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-lg font-semibold text-gray-900">{course.title}</h3>
-          <p className="text-sm text-blue-600 font-medium">{course.courseId}</p>
+          <h3 
+            className="text-lg font-semibold"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
+            {course.title}
+          </h3>
+          <p 
+            className="text-sm font-medium"
+            style={{ color: isWhiteTheme ? '#2563eb' : '#93c5fd' }}
+          >
+            {course.courseId}
+          </p>
         </div>
-        <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          course.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-        }`}>
+        <div 
+          className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+          style={{
+            backgroundColor: course.status === 'active' 
+              ? (isWhiteTheme ? '#dcfce7' : 'rgba(34,197,94,0.2)')
+              : (isWhiteTheme ? '#f3f4f6' : 'rgba(255,255,255,0.2)'),
+            color: course.status === 'active'
+              ? (isWhiteTheme ? '#166534' : '#22c55e')
+              : (isWhiteTheme ? '#374151' : '#e5e7eb')
+          }}
+        >
           {course.status}
         </div>
       </div>
       
-      <div className="space-y-2 text-sm text-gray-600">
+      <div className="space-y-2 text-sm" style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}>
         <div className="flex justify-between">
           <span>Coordinator:</span>
-          <span className="font-medium text-gray-900">
+          <span 
+            className="font-medium"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
             {course.courseDirectorId?.name || 'Not assigned'}
           </span>
         </div>
         
         <div className="flex justify-between">
           <span>Credits:</span>
-          <span className="font-medium text-gray-900">{course.credits}</span>
+          <span 
+            className="font-medium"
+            style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+          >
+            {course.credits}
+          </span>
         </div>
       </div>
 
       {course.description && (
-        <p className="mt-3 text-sm text-gray-600 line-clamp-2">
+        <p 
+          className="mt-3 text-sm line-clamp-2"
+          style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+        >
           {course.description}
         </p>
       )}
@@ -65,6 +104,9 @@ const CourseCard = ({ course }: { course: Course }) => {
 
 // Progress Tracker Component
 const ProgressTracker = ({ user }: { user: User }) => {
+  const { currentTheme } = useTheme();
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff';
+  
   if (!user) return null
 
   const enrolledCourses = user.enrolledCourses || []
@@ -101,18 +143,51 @@ const ProgressTracker = ({ user }: { user: User }) => {
   ]
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Progress Tracker</h2>
+    <div 
+      className="rounded-lg shadow-md p-6 border"
+      style={{ 
+        backgroundColor: currentTheme.hexColor,
+        borderColor: `${currentTheme.hexColor}30`
+      }}
+    >
+      <h2 
+        className="text-xl font-bold mb-6"
+        style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+      >
+        Progress Tracker
+      </h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {stats.map((stat, index) => (
-          <div key={index} className="p-4 rounded-lg bg-gray-50">
+          <div 
+            key={index} 
+            className="p-4 rounded-lg"
+            style={{ 
+              backgroundColor: isWhiteTheme ? '#f9fafb' : 'rgba(255,255,255,0.1)'
+            }}
+          >
             <div className="flex items-center justify-between mb-2">
-              <h3 className="font-medium text-gray-900">{stat.title}</h3>
-              <span className={`px-2 py-1 rounded-full text-xs font-medium ${stat.color}`}>
+              <h3 
+                className="font-medium"
+                style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+              >
+                {stat.title}
+              </h3>
+              <span 
+                className="px-2 py-1 rounded-full text-xs font-medium"
+                style={{
+                  backgroundColor: isWhiteTheme ? '#dbeafe' : 'rgba(59,130,246,0.2)',
+                  color: isWhiteTheme ? '#1d4ed8' : '#60a5fa'
+                }}
+              >
                 {stat.value}
               </span>
             </div>
-            <p className="text-sm text-gray-600">{stat.description}</p>
+            <p 
+              className="text-sm"
+              style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+            >
+              {stat.description}
+            </p>
           </div>
         ))}
       </div>
@@ -123,6 +198,8 @@ const ProgressTracker = ({ user }: { user: User }) => {
 // Main Student Dashboard Component
 export default function StudentDashboard() {
   const { user, loading, error, refetch } = useGetUser()
+  const { currentTheme } = useTheme()
+  const isWhiteTheme = currentTheme.hexColor === '#ffffff'
 
   if (loading) {
     return (
@@ -175,18 +252,40 @@ export default function StudentDashboard() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8 border border-gray-200">
+        <div 
+          className="rounded-lg shadow-md p-6 mb-8 border"
+          style={{ 
+            backgroundColor: currentTheme.hexColor,
+            borderColor: `${currentTheme.hexColor}30`
+          }}
+        >
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Welcome, {(user as User)?.name}!</h1>
-              <p className="text-gray-600 mt-1">
+              <h1 
+                className="text-3xl font-bold"
+                style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+              >
+                Welcome, {(user as User)?.name}!
+              </h1>
+              <p 
+                className="mt-1"
+                style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+              >
                 Student Dashboard - Enrolled since {(user as User)?.dateEnrolled ? new Date((user as User).dateEnrolled!).toLocaleDateString() : 'Unknown'}
               </p>
             </div>
             <div className="text-right">
-              <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                (user as User)?.status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-              }`}>
+              <div 
+                className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+                style={{
+                  backgroundColor: (user as User)?.status === 'active' 
+                    ? (isWhiteTheme ? '#dcfce7' : 'rgba(34,197,94,0.2)')
+                    : (isWhiteTheme ? '#f3f4f6' : 'rgba(255,255,255,0.2)'),
+                  color: (user as User)?.status === 'active'
+                    ? (isWhiteTheme ? '#166534' : '#22c55e')
+                    : (isWhiteTheme ? '#374151' : '#e5e7eb')
+                }}
+              >
                 {(user as User)?.status}
               </div>
             </div>
@@ -199,14 +298,32 @@ export default function StudentDashboard() {
         </div>
 
         {/* Enrolled Courses Section */}
-        <div className="bg-white rounded-lg shadow-md p-6 border border-gray-200">
+        <div 
+          className="rounded-lg shadow-md p-6 border"
+          style={{ 
+            backgroundColor: currentTheme.hexColor,
+            borderColor: `${currentTheme.hexColor}30`
+          }}
+        >
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 
+              className="text-2xl font-bold"
+              style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+            >
               My Courses ({enrolledCourses.length})
             </h2>
             <button
               onClick={refetch}
-              className="text-gray-500 hover:text-gray-700 transition-colors"
+              className="transition-colors"
+              style={{ 
+                color: isWhiteTheme ? '#6b7280' : '#d1d5db'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = isWhiteTheme ? '#374151' : '#ffffff';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = isWhiteTheme ? '#6b7280' : '#d1d5db';
+              }}
               title="Refresh"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -224,12 +341,28 @@ export default function StudentDashboard() {
           ) : (
             <div className="text-center py-12">
               <div className="mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  className="h-16 w-16 mx-auto" 
+                  fill="none" 
+                  viewBox="0 0 24 24" 
+                  stroke="currentColor"
+                  style={{ color: isWhiteTheme ? '#d1d5db' : 'rgba(255,255,255,0.3)' }}
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
               </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No Courses Enrolled</h3>
-              <p className="text-gray-600">You are not currently enrolled in any courses.</p>
+              <h3 
+                className="text-lg font-medium mb-2"
+                style={{ color: isWhiteTheme ? '#111827' : '#ffffff' }}
+              >
+                No Courses Enrolled
+              </h3>
+              <p 
+                style={{ color: isWhiteTheme ? '#6b7280' : '#d1d5db' }}
+              >
+                You are not currently enrolled in any courses.
+              </p>
             </div>
           )}
         </div>
