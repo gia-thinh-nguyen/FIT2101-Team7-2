@@ -32,7 +32,7 @@ export async function GET() {
       .sort({ courseId: 1 })
 
     // Filter out courses the student is already enrolled in
-    const availableCourses = allCourses.filter(course => 
+    const availableCourses = allCourses.filter((course: any) => 
       !dbUser.enrolledCourseIds.some((enrolledId: any) => enrolledId.toString() === course._id.toString())
     )
 
