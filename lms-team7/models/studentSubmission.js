@@ -22,8 +22,8 @@ const StudentSubmissionSchema = new Schema(
     },
     grade: { 
       type: String, 
-      enum: ['P', 'F', 'not graded'], 
-      default: 'not graded',
+      enum: ['P', 'F', 'N'],  //N for Not graded yet
+      default: 'N',
       required: true 
     },
     feedback: { type: String, trim: true }
