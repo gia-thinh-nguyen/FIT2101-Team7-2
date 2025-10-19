@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
-type ReactionMap = Record<"like"|"love"|"insightful"|"question", string[]>;
+type ReactionMap = { love: string[] };
 
 export default function CourseForumPage() {
   const { courseId } = useParams() as { courseId: string };

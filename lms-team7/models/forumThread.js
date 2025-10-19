@@ -2,9 +2,10 @@ import mongoose from 'mongoose';
 const { Schema, model, models } = mongoose;
 
 const ReactionsSchema = new Schema(
-  { like:{type:[String],default:[]}, love:{type:[String],default:[]},
-    insightful:{type:[String],default:[]}, question:{type:[String],default:[]} },
-  { _id:false }
+  {
+    love: { type: [String], default: [] }  
+  },
+  { _id: false }
 );
 
 const ReplySchema = new Schema(
