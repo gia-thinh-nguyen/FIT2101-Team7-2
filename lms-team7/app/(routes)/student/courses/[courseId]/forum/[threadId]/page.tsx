@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 type ReactionType = "love";
 
@@ -9,6 +10,7 @@ export default function ThreadDetailPage() {
   const { courseId, threadId } = useParams() as { courseId: string; threadId: string };
   const API = `/api/course/${courseId}/forum/threads/${threadId}`;
   const router = useRouter();
+  const { user } = useUser();
 
   const [thread, setThread] = useState<any>(null);
   const [edit, setEdit] = useState(false);
@@ -41,32 +43,37 @@ export default function ThreadDetailPage() {
 
   if (!thread) return <div className="p-4">Loading…</div>;
 
+  // Check if current user is the thread author
+  const isThreadAuthor = user?.id && String(thread.authorId) === String(user.id);
+
   return (
     <div className="max-w-4xl mx-auto p-4 space-y-4">
       {!edit ? (
         <>
           <div className="flex items-center justify-between">
             <h1 className="text-2xl font-bold">{thread.title}</h1>
-            <div className="flex gap-2">
-              <button 
-                className="btn btn-sm btn-ghost gap-2" 
-                onClick={() => setEdit(true)}
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-                Edit
-              </button>
-              <button 
-                className="btn btn-sm btn-ghost text-red-600 hover:bg-red-50 gap-2" 
-                onClick={() => setShowDeleteModal(true)}
-              >
-                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                Delete
-              </button>
-            </div>
+            {isThreadAuthor && (
+              <div className="flex gap-2">
+                <button 
+                  className="btn btn-sm btn-ghost gap-2" 
+                  onClick={() => setEdit(true)}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Edit
+                </button>
+                <button 
+                  className="btn btn-sm btn-ghost text-red-600 hover:bg-red-50 gap-2" 
+                  onClick={() => setShowDeleteModal(true)}
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
           <div className="text-sm text-gray-500">
             by {thread.authorName} • {new Date(thread.createdAt).toLocaleString()}
@@ -76,7 +83,7 @@ export default function ThreadDetailPage() {
           <ReactionBar courseId={courseId} threadId={threadId} target="thread" item={thread} onChanged={load} />
 
           <CommentComposer courseId={courseId} threadId={threadId} onAdded={load} />
-          <CommentList courseId={courseId} threadId={threadId} comments={thread.comments || []} onChanged={load} />
+          <CommentList courseId={courseId} threadId={threadId} comments={thread.comments || []} onChanged={load} currentUserId={user?.id} />
         </>
       ) : (
         <div className="space-y-2">
@@ -89,7 +96,6 @@ export default function ThreadDetailPage() {
         </div>
       )}
 
-      {/* Delete Thread Modal */}
       <DeleteModal
         isOpen={showDeleteModal}
         title="Delete Thread"
@@ -115,13 +121,11 @@ function DeleteModal({ isOpen, title, message, onConfirm, onCancel }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
-      {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={onCancel}
       />
       
-      {/* Modal */}
       <div className="relative bg-white dark:bg-gray-800 rounded-lg shadow-2xl max-w-md w-full mx-4 p-6 space-y-4 animate-in fade-in zoom-in duration-200">
         <div className="flex items-start gap-4">
           <div className="flex-shrink-0 w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
@@ -158,14 +162,23 @@ function DeleteModal({ isOpen, title, message, onConfirm, onCancel }: {
   );
 }
 
-function ReactionBar({ courseId, threadId, target, item, commentId, onChanged }:{
-  courseId:string; threadId:string; target:'thread'|'comment'; item:any; commentId?:string; onChanged:()=>void;
+function ReactionBar({ courseId, threadId, target, item, commentId, replyId, onChanged }:{
+  courseId:string; threadId:string; target:'thread'|'comment'|'reply'; item:any; commentId?:string; replyId?:string; onChanged:()=>void;
 }) {
   const API = `/api/course/${courseId}/forum/threads/${threadId}/react`;
   const count = item?.reactions?.love?.length || 0;
 
   async function toggle(){
-    await fetch(API, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ type:'love', target, commentId })});
+    await fetch(API, { 
+      method:'POST', 
+      headers:{'Content-Type':'application/json'}, 
+      body: JSON.stringify({ 
+        type:'love', 
+        target, 
+        commentId,
+        replyId 
+      })
+    });
     onChanged();
   }
   
@@ -200,20 +213,110 @@ function CommentComposer({ courseId, threadId, onAdded }:{ courseId:string; thre
   );
 }
 
-function CommentList({ courseId, threadId, comments, onChanged }:{
-  courseId:string; threadId:string; comments:any[]; onChanged:()=>void;
+function CommentList({ courseId, threadId, comments, onChanged, currentUserId }:{
+  courseId:string; threadId:string; comments:any[]; onChanged:()=>void; currentUserId?: string;
 }) {
   return (
     <div className="space-y-3 mt-2">
       {comments.map(c=> (
-        <CommentItem key={c._id} courseId={courseId} threadId={threadId} comment={c} onChanged={onChanged}/>
+        <CommentItem key={c._id} courseId={courseId} threadId={threadId} comment={c} onChanged={onChanged} currentUserId={currentUserId}/>
       ))}
     </div>
   );
 }
 
-function CommentItem({ courseId, threadId, comment, onChanged }:{
-  courseId:string; threadId:string; comment:any; onChanged:()=>void;
+function ReplyNode({
+  reply,
+  courseId,
+  threadId,
+  commentId,
+  onChanged,
+  currentUserId,
+  level = 1,
+}: {
+  reply: any;
+  courseId: string;
+  threadId: string;
+  commentId: string;
+  onChanged: () => void;
+  currentUserId?: string;
+  level?: number;
+}) {
+  const [showBox, setShowBox] = React.useState(false);
+  const [text, setText] = React.useState("");
+
+  const base = `/api/course/${courseId}/forum/threads/${threadId}/comments/${commentId}/replies`;
+  
+  async function send() {
+    if (!text.trim()) return;
+    await fetch(base, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ content: text, parentReplyId: reply._id }),
+    });
+    setText("");
+    setShowBox(false);
+    onChanged();
+  }
+
+  return (
+    <div style={{ marginLeft: level * 16 }} className="pl-3 border-l space-y-2">
+      <div className="text-sm text-gray-500">
+        {reply.authorName} • {new Date(reply.createdAt).toLocaleString()}
+      </div>
+      
+      <div className="whitespace-pre-wrap">{reply.content}</div>
+
+      {/* Added reaction bar for replies */}
+      <ReactionBar 
+        courseId={courseId} 
+        threadId={threadId} 
+        target="reply" 
+        item={reply} 
+        commentId={commentId}
+        replyId={reply._id}
+        onChanged={onChanged} 
+      />
+
+      <div className="flex gap-2 items-center flex-wrap">
+        <button className="text-xs underline" onClick={() => setShowBox(v => !v)}>
+          Reply
+        </button>
+        
+        {/* REMOVED: Edit and Delete buttons for replies */}
+      </div>
+
+      {showBox && (
+        <div className="flex gap-2 mt-2">
+          <input
+            className="input input-bordered flex-1"
+            placeholder="Write a reply…"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <button className="btn btn-sm" onClick={send}>Reply</button>
+        </div>
+      )}
+
+      {reply.replies?.length > 0 &&
+        reply.replies.map((child: any) => (
+          <ReplyNode
+            key={child._id}
+            reply={child}
+            courseId={courseId}
+            threadId={threadId}
+            commentId={commentId}
+            onChanged={onChanged}
+            currentUserId={currentUserId}
+            level={level + 1}
+          />
+        ))}
+    </div>
+  );
+}
+
+function CommentItem({ courseId, threadId, comment, onChanged, currentUserId }:{
+  courseId:string; threadId:string; comment:any; onChanged:()=>void; currentUserId?: string;
 }) {
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(comment.content);
@@ -221,6 +324,7 @@ function CommentItem({ courseId, threadId, comment, onChanged }:{
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const base = `/api/course/${courseId}/forum/threads/${threadId}/comments/${comment._id}`;
+  const isOwner = currentUserId && String(comment.authorId) === String(currentUserId);
 
   async function save(){
     await fetch(base, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ content: draft })});
@@ -238,62 +342,70 @@ function CommentItem({ courseId, threadId, comment, onChanged }:{
 
   return (
     <div className="border rounded-lg p-3">
-      <div className="text-sm text-gray-500">{comment.authorName} • {new Date(comment.createdAt).toLocaleString()}</div>
+      <div className="text-sm text-gray-500">
+        {comment.authorName} • {new Date(comment.createdAt).toLocaleString()}
+      </div>
       {!editing ? (
         <div className="whitespace-pre-wrap my-2">{comment.content}</div>
       ) : (
         <textarea className="textarea textarea-bordered w-full my-2" rows={3} value={draft} onChange={(e)=>setDraft(e.target.value)} />
       )}
       <ReactionBar courseId={courseId} threadId={threadId} target="comment" item={comment} commentId={comment._id} onChanged={onChanged} />
-      <div className="flex gap-2 mt-2">
-        {!editing ? (
-          <>
-            <button 
-              className="btn btn-xs btn-ghost gap-1" 
-              onClick={()=>setEditing(true)}
-            >
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              Edit
-            </button>
-            <button 
-              className="btn btn-xs btn-ghost text-red-600 hover:bg-red-50 gap-1" 
-              onClick={() => setShowDeleteModal(true)}
-            >
-              <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-              Delete
-            </button>
-          </>
-        ) : (
-          <>
-            <button className="btn btn-xs btn-neutral" onClick={save}>Save</button>
-            <button className="btn btn-xs" onClick={()=>setEditing(false)}>Cancel</button>
-          </>
-        )}
-      </div>
+      
+      {isOwner && (
+        <div className="flex gap-2 mt-2">
+          {!editing ? (
+            <>
+              <button 
+                className="btn btn-xs btn-ghost gap-1" 
+                onClick={()=>setEditing(true)}
+              >
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit
+              </button>
+              <button 
+                className="btn btn-xs btn-ghost text-red-600 hover:bg-red-50 gap-1" 
+                onClick={() => setShowDeleteModal(true)}
+              >
+                <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn-xs btn-neutral" onClick={save}>Save</button>
+              <button className="btn btn-xs" onClick={()=>setEditing(false)}>Cancel</button>
+            </>
+          )}
+        </div>
+      )}
 
-      {/* Reply box */}
       <div className="flex gap-2 mt-3">
         <input className="input input-bordered flex-1" placeholder="Write a reply…" value={reply} onChange={(e)=>setReply(e.target.value)} />
         <button className="btn" onClick={sendReply}>Reply</button>
       </div>
 
-      {/* Replies (shallow) */}
       {comment.replies?.length > 0 && (
-        <div className="mt-3 pl-3 border-l space-y-2">
+        <div className="mt-3">
           {comment.replies.map((r:any) => (
-            <div key={r._id} className="text-sm">
-              <div className="text-gray-500">{r.authorName} • {new Date(r.createdAt).toLocaleString()}</div>
-              <div className="whitespace-pre-wrap">{r.content}</div>
-            </div>
+            <ReplyNode
+              key={r._id}
+              reply={r}
+              courseId={courseId}
+              threadId={threadId}
+              commentId={comment._id}
+              onChanged={onChanged}
+              currentUserId={currentUserId}
+              level={1}
+            />
           ))}
         </div>
       )}
 
-      {/* Delete Comment Modal */}
       <DeleteModal
         isOpen={showDeleteModal}
         title="Delete Comment"

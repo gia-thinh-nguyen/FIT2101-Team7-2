@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
 import connectMongoDB from '@/db/connectMongoDB'
 import ForumThread from '@/models/forumThread'
-import { requireCourseAccess } from '../../../../../_auth'
+import { requireCourseAccess } from '../../../../../../_auth'
+
+
 
 ForumThread;
 
+// Recursive helper to find a reply by ID at any depth
 function findReplyById(list: any[], id: string): any | null {
   for (const r of list) {
     if (String(r._id) === String(id)) return r;
@@ -58,3 +61,4 @@ export async function POST(
   await t.save();
   return NextResponse.json(t, { status: 201 });
 }
+

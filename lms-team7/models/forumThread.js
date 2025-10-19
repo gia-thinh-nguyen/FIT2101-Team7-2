@@ -2,22 +2,34 @@ import mongoose from 'mongoose';
 const { Schema, model, models } = mongoose;
 
 const ReactionsSchema = new Schema(
-  {
-    love: { type: [String], default: [] }  
-  },
+  { love: { type: [String], default: [] } },
   { _id: false }
 );
 
 const ReplySchema = new Schema(
-  { authorId:{type:String,required:true}, authorName:{type:String,required:true},
-    content:{type:String,required:true,trim:true}, reactions:{type:ReactionsSchema, default:()=>({})} },
+  {
+    authorId:   { type:String, required:true },
+    authorName: { type:String, required:true },
+    content:    { type:String, required:true, trim:true },
+    reactions:  { type:ReactionsSchema, default:()=>({}) }
+    // ⬇️ we'll add .replies after the schema is created to allow self-reference
+  },
   { timestamps:true }
 );
 
+// ⬅️ Add recursive replies here
+ReplySchema.add({
+  replies: { type: [ReplySchema], default: [] }
+});
+
 const CommentSchema = new Schema(
-  { authorId:{type:String,required:true}, authorName:{type:String,required:true},
-    content:{type:String,required:true,trim:true}, reactions:{type:ReactionsSchema, default:()=>({})},
-    replies:{type:[ReplySchema], default:[]} },
+  {
+    authorId:   { type:String, required:true },
+    authorName: { type:String, required:true },
+    content:    { type:String, required:true, trim:true },
+    reactions:  { type:ReactionsSchema, default:()=>({}) },
+    replies:    { type:[ReplySchema], default:[] }    // remains the same
+  },
   { timestamps:true }
 );
 
