@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { Home, BookOpen, UserPlus, Menu, X } from "lucide-react";
+import { Home, BookOpen, UserPlus, Menu, X, Palette } from "lucide-react";
+import { Home, BookOpen, UserPlus, Menu, X, Palette, MessageSquare } from "lucide-react";
 import { StudentSidebarItem } from "./StudentSidebarItem";
+import { useTheme } from "@/context/ThemeContext";
 
 interface StudentSidebarProps {
   collapsed: boolean;
@@ -8,6 +10,8 @@ interface StudentSidebarProps {
 }
 
 export const StudentSidebar = ({ collapsed, onToggle }: StudentSidebarProps) => {
+  const { currentTheme } = useTheme();
+
   const sidebarItems = [
     {
       href: "/student",
@@ -23,22 +27,56 @@ export const StudentSidebar = ({ collapsed, onToggle }: StudentSidebarProps) => 
       href: "/student/enrol",
       icon: <UserPlus size={20} />,
       label: "Enroll"
+    },
+    {
+      href: "/student/forum",
+      icon: <MessageSquare size={20} />,
+      label: "Forum"
+    },
+    {
+      href: "/student/theme",
+      icon: <Palette size={20} />,
+      label: "Themes"
     }
   ];
 
   return (
-    <div className={`${
-      collapsed ? "w-20" : "w-64"
-    } bg-white border-r border-gray-200 transition-all duration-300 flex flex-col`}>
+    <div 
+      className={`${collapsed ? "w-20" : "w-64"} border-r transition-all duration-300 flex flex-col`}
+      style={{ 
+        backgroundColor: currentTheme.hexColor,
+        borderRightColor: `${currentTheme.hexColor}30`
+      }}
+    >
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
+      <div 
+        className="p-4 border-b"
+        style={{ borderBottomColor: `${currentTheme.hexColor}30` }}
+      >
         <div className="flex items-center justify-between">
           {!collapsed && (
-            <h2 className="text-lg font-semibold text-gray-900">Student Portal</h2>
+            <h2 
+              className="text-lg font-semibold"
+              style={{ 
+                color: currentTheme.hexColor === '#ffffff' ? '#1f2937' : '#ffffff'
+              }}
+            >
+              Student Portal
+            </h2>
           )}
           <button
             onClick={onToggle}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="p-2 rounded-lg transition-colors"
+            style={{
+              color: currentTheme.hexColor === '#ffffff' ? '#6b7280' : '#e5e7eb',
+              backgroundColor: 'transparent'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = currentTheme.hexColor === '#ffffff' ? '#f3f4f6' : 'rgba(255,255,255,0.1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent';
+            }}
             title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
           >
             {collapsed ? <Menu size={20} /> : <X size={20} />}
@@ -60,15 +98,3 @@ export const StudentSidebar = ({ collapsed, onToggle }: StudentSidebarProps) => 
           ))}
         </div>
       </nav>
-
-      {/* Footer */}
-      {!collapsed && (
-        <div className="p-4 border-t border-gray-200">
-          <div className="text-xs text-gray-500 text-center">
-            Learning Management System
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};

@@ -1,14 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
-import {
-  ArrowLeft, Book, Clock, GraduationCap, FileText, Target, User, Calendar,
-  CheckCircle, XCircle, Clock as ClockIcon, MessageSquare
-} from 'lucide-react' // ⟵ added MessageSquare
+import { ArrowLeft, Book, Clock, GraduationCap, FileText, Target, User, Calendar } from 'lucide-react'
 import Link from 'next/link'
 import { useGetStudentCourse } from '@/hooks/student/useGetStudentCourse'
-import { useGetStudentSubmissions } from '@/hooks/student/useGetStudentSubmissions'
-import { useUser } from '@clerk/nextjs'
 
 // Types matching your API response format
 interface Lesson {
@@ -53,12 +48,12 @@ interface Assignment {
 }
 
 // Tab Component
-const TabButton = ({
-  active,
-  onClick,
-  children,
-  icon: Icon
-}: {
+const TabButton = ({ 
+  active, 
+  onClick, 
+  children, 
+  icon: Icon 
+}: { 
   active: boolean
   onClick: () => void
   children: React.ReactNode
@@ -77,7 +72,7 @@ const TabButton = ({
   </button>
 )
 
-// Lessons Tab Component
+// Lessons Tab Component (using your existing data structure)
 const LessonsTab = ({ course }: { course: Course }) => {
   const activeLessons = course.lessonIds?.filter((lesson: any) => lesson.status === 'active') || []
 
@@ -87,7 +82,7 @@ const LessonsTab = ({ course }: { course: Course }) => {
         <h3 className="text-lg font-semibold text-gray-900">Course Lessons</h3>
         <span className="text-sm text-gray-500">{activeLessons.length} active lessons</span>
       </div>
-
+      
       {activeLessons.length > 0 ? (
         <div className="space-y-4">
           {activeLessons.map((lesson: any, index: number) => (
@@ -164,69 +159,21 @@ const LessonsTab = ({ course }: { course: Course }) => {
   )
 }
 
-// Assignments Tab Component
-const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: string }) => {
+// Assignments Tab Component (using real assignment data from course)
+const AssignmentsTab = ({ course }: { course: Course }) => {
   const assignments = course.assignmentIds || []
-  const {
-    submissions,
-    loading: submissionsLoading,
-    error: submissionsError,
-    getGradeForAssignment,
-    getStatusForAssignment,
-    getFeedbackForAssignment
-  } = useGetStudentSubmissions(studentId, course._id)
 
+  // Helper function to determine assignment status based on due date
   const getAssignmentStatus = (dueDate: string) => {
     const today = new Date()
     const due = new Date(dueDate)
-    if (due < today) return 'overdue'
-    if (due.getTime() - today.getTime() <= 7 * 24 * 60 * 60 * 1000) return 'due-soon'
-    return 'upcoming'
-  }
-
-  const getGradeDisplay = (assignmentId: string) => {
-    const grade = getGradeForAssignment(assignmentId)
-    const status = getStatusForAssignment(assignmentId)
-    switch (grade) {
-      case 'P':
-        return { text: 'Pass', color: 'text-green-600', bgColor: 'bg-green-100', icon: CheckCircle }
-      case 'F':
-        return { text: 'Fail', color: 'text-red-600', bgColor: 'bg-red-100', icon: XCircle }
-      case 'N':
-      default:
-        return status === 'Graded'
-          ? { text: 'Not Graded', color: 'text-gray-600', bgColor: 'bg-gray-100', icon: ClockIcon }
-          : { text: 'Not Submitted', color: 'text-yellow-600', bgColor: 'bg-yellow-100', icon: ClockIcon }
+    
+    if (due < today) {
+      return 'overdue'
+    } else if (due.getTime() - today.getTime() <= 7 * 24 * 60 * 60 * 1000) { // Due within 7 days
+      return 'due-soon'
     }
-  }
-
-  if (submissionsLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-gray-900">Assignments & Assessments</h3>
-          <span className="text-sm text-gray-500">{assignments.length} assignments</span>
-        </div>
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-          <span className="ml-2 text-gray-600">Loading grades...</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (submissionsError) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-gray-900">Assignments & Assessments</h3>
-          <span className="text-sm text-gray-500">{assignments.length} assignments</span>
-        </div>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <p className="text-yellow-800">Unable to load grades: {submissionsError}</p>
-        </div>
-      </div>
-    )
+    return 'upcoming'
   }
 
   return (
@@ -235,7 +182,7 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
         <h3 className="text-lg font-semibold text-gray-900">Assignments & Assessments</h3>
         <span className="text-sm text-gray-500">{assignments.length} assignments</span>
       </div>
-
+      
       {assignments.length > 0 ? (
         <div className="space-y-4">
           {assignments.map((assignment) => {
@@ -243,7 +190,7 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
             const dueDate = new Date(assignment.dueDate)
             const isOverdue = status === 'overdue'
             const isDueSoon = status === 'due-soon'
-
+            
             return (
               <div key={assignment._id} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start mb-4">
@@ -253,7 +200,7 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
                   </div>
                   <div className="ml-4 text-right">
                     <span className={`px-3 py-1 text-sm font-medium rounded-full ${
-                      isOverdue
+                      isOverdue 
                         ? "bg-red-100 text-red-800"
                         : isDueSoon
                         ? "bg-yellow-100 text-yellow-800"
@@ -263,65 +210,30 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
                     </span>
                   </div>
                 </div>
-
-                <div className="flex items-start justify-between text-sm text-gray-600">
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                    <span className={isOverdue ? 'text-red-600 font-medium' : ''}>
-                      Due: {dueDate.toLocaleDateString('en-US', {
-                        weekday: 'short',
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
-                  </div>
-
-                  {/* Grade and Status Display - Stacked Vertically */}
-                  <div className="flex flex-col items-end space-y-2">
-                    {/* Submission Status */}
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-500 text-xs">Status:</span>
-                      <span className={`font-medium text-sm ${
-                        getStatusForAssignment(assignment._id) === 'Submitted' ? 'text-blue-600' :
-                        getStatusForAssignment(assignment._id) === 'Graded' ? 'text-green-600' :
-                        getStatusForAssignment(assignment._id) === 'Overdue' ? 'text-red-600' :
-                        'text-yellow-600'
-                      }`}>
-                        {getStatusForAssignment(assignment._id)}
+                
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                      <span className={isOverdue ? 'text-red-600 font-medium' : ''}>
+                        Due: {dueDate.toLocaleDateString('en-US', { 
+                          weekday: 'short', 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </span>
                     </div>
-
-                    {/* Grade Display */}
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-500 text-xs">Grade:</span>
-                      <div className="flex items-center space-x-1">
-                        {(() => {
-                          const gradeInfo = getGradeDisplay(assignment._id)
-                          const GradeIcon = gradeInfo.icon
-                          return (
-                            <>
-                              <GradeIcon className={`h-4 w-4 ${gradeInfo.color}`} />
-                              <span className={`font-medium px-2 py-1 rounded-full text-xs ${gradeInfo.color} ${gradeInfo.bgColor}`}>
-                                {gradeInfo.text}
-                              </span>
-                            </>
-                          )
-                        })()}
-                      </div>
-                    </div>
+                  </div>
+                  
+                  {/* Submission Status - This would normally come from a submission table/API */}
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-500">Status:</span>
+                    <span className="text-yellow-600 font-medium">Not Submitted</span>
                   </div>
                 </div>
-
-                {/* Feedback Section */}
-                {getFeedbackForAssignment(assignment._id) && (
-                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <h5 className="text-sm font-medium text-blue-800 mb-1">Teacher Feedback:</h5>
-                    <p className="text-sm text-blue-700">{getFeedbackForAssignment(assignment._id)}</p>
-                  </div>
-                )}
 
                 {/* Action buttons */}
                 <div className="mt-4 flex space-x-2">
@@ -347,13 +259,15 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
   )
 }
 
+
+
 export default function CourseDetailsPage({ params }: { params: Promise<{ courseId: string }> }) {
   // Unwrap the params Promise using React.use()
   const { courseId } = React.use(params)
-  const { user } = useUser()
   const { course, loading, error, refetchCourse } = useGetStudentCourse(courseId)
   const [activeTab, setActiveTab] = useState('lessons')
-
+  
+  // Type the course properly
   const typedCourse = course as Course | null
 
   if (loading) {
@@ -376,7 +290,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
           <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
             <h2 className="text-lg font-semibold text-red-800 mb-2">Error Loading Course</h2>
             <p className="text-red-600 mb-4">{error || 'Course not found'}</p>
-            <Link
+            <Link 
               href="/student/courses"
               className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md font-medium transition-colors"
             >
@@ -397,7 +311,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
       <div className="max-w-4xl mx-auto">
         {/* Navigation */}
         <div className="mb-6">
-          <Link
+          <Link 
             href="/student/courses"
             className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium transition-colors"
           >
@@ -419,15 +333,6 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
               }`}>
                 {typedCourse.status}
               </div>
-
-              {/* 🟦 Go to Forum button */}
-              <Link
-                href={`/student/courses/${courseId}/forum`}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-              >
-                <MessageSquare className="h-4 w-4" />
-                Go to Forum
-              </Link>
             </div>
           </div>
 
@@ -532,8 +437,8 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
             {activeTab === 'lessons' && (
               <LessonsTab course={typedCourse} />
             )}
-            {activeTab === 'assignments' && user?.id && (
-              <AssignmentsTab course={typedCourse} studentId={user.id} />
+            {activeTab === 'assignments' && (
+              <AssignmentsTab course={typedCourse} />
             )}
           </div>
         </div>
