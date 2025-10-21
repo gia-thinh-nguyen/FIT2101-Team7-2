@@ -1,10 +1,11 @@
 'use client'
 
-import React, { useState } from 'react'
-import { ArrowLeft, Book, Clock, GraduationCap, FileText, Target, User, Calendar, CheckCircle, XCircle, Clock as ClockIcon } from 'lucide-react'
+import React, { useState, useRef } from 'react'
+import { ArrowLeft, Book, Clock, GraduationCap, FileText, Target, User, Calendar, CheckCircle, XCircle, Clock as ClockIcon, Upload } from 'lucide-react'
 import Link from 'next/link'
 import { useGetStudentCourse } from '@/hooks/student/useGetStudentCourse'
 import { useGetStudentSubmissions } from '@/hooks/student/useGetStudentSubmissions'
+import { useSubmitAssignment } from '@/hooks/student/useSubmitAssignment'
 import { useUser } from '@clerk/nextjs'
 
 // Types matching your API response format
@@ -170,8 +171,65 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
     error: submissionsError,
     getGradeForAssignment,
     getStatusForAssignment,
-    getFeedbackForAssignment
+    getFeedbackForAssignment,
+    getFileInfoForAssignment,
+    refetch: refetchSubmissions
   } = useGetStudentSubmissions(studentId, course._id)
+  
+  const { submitAssignment, loading: submitLoading, error: submitError, success: submitSuccess, clearError, clearSuccess } = useSubmitAssignment()
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [currentAssignmentId, setCurrentAssignmentId] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Handle file selection
+  const handleFileSelect = (assignmentId: string) => {
+    setCurrentAssignmentId(assignmentId)
+    fileInputRef.current?.click()
+  }
+
+  // Handle viewing submitted PDF
+  const handleViewSubmission = (assignmentId: string) => {
+    const fileInfo = getFileInfoForAssignment(assignmentId)
+    if (fileInfo?.submissionId) {
+      // Open PDF in new tab
+      window.open(`/api/student/submissions/${fileInfo.submissionId}/file`, '_blank')
+    } else {
+      alert('No submission found for this assignment')
+    }
+  }
+
+  // Handle file change
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (file && file.type === 'application/pdf') {
+      setSelectedFile(file)
+      // Automatically submit after file selection
+      if (currentAssignmentId) {
+        handleSubmit(currentAssignmentId, file)
+      }
+    } else {
+      alert('Please select a PDF file')
+    }
+    // Reset input
+    if (event.target) {
+      event.target.value = ''
+    }
+  }
+
+  // Handle submission
+  const handleSubmit = async (assignmentId: string, file: File) => {
+    const result = await submitAssignment(assignmentId, file)
+    
+    if (result.success) {
+      // Refresh submissions to show updated status
+      refetchSubmissions()
+      setSelectedFile(null)
+      setCurrentAssignmentId(null)
+      alert(result.message || 'Assignment submitted successfully!')
+    } else {
+      alert(result.error || 'Failed to submit assignment')
+    }
+  }
 
   // Helper function to determine assignment status based on due date
   const getAssignmentStatus = (dueDate: string) => {
@@ -327,14 +385,46 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
                   </div>
                 )}
 
+                {/* Hidden file input */}
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  accept=".pdf"
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+
                 {/* Action buttons */}
                 <div className="mt-4 flex space-x-2">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                    Submit Assignment
+                  <button 
+                    onClick={() => handleFileSelect(assignment._id)}
+                    disabled={submitLoading && currentAssignmentId === assignment._id}
+                    className={`flex items-center justify-center ${
+                      submitLoading && currentAssignmentId === assignment._id
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    } text-white px-4 py-2 rounded-md text-sm font-medium transition-colors`}
+                  >
+                    {submitLoading && currentAssignmentId === assignment._id ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                        Submitting...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-4 w-4 mr-2" />
+                        Submit Assignment (PDF)
+                      </>
+                    )}
                   </button>
-                  <button className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors">
-                    View Details
-                  </button>
+                  {getFileInfoForAssignment(assignment._id) && (
+                    <button 
+                      onClick={() => handleViewSubmission(assignment._id)}
+                      className="border border-gray-300 hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                    >
+                      View Submitted PDF
+                    </button>
+                  )}
                 </div>
               </div>
             )

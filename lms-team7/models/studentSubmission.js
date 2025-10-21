@@ -26,7 +26,12 @@ const StudentSubmissionSchema = new Schema(
       default: 'N',
       required: true 
     },
-    feedback: { type: String, trim: true }
+    feedback: { type: String, trim: true },
+    // Add fields to store PDF file data
+    fileData: { type: Buffer },
+    fileName: { type: String },
+    fileType: { type: String },
+    fileSize: { type: Number }
   },
   {
     timestamps: true
