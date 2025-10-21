@@ -44,14 +44,6 @@ export async function GET(
       )
     }
 
-    // Verify the submission belongs to the requesting user
-    if (submission.studentId.toString() !== dbUser._id.toString()) {
-      return NextResponse.json(
-        { error: 'You can only view your own submissions.' },
-        { status: 403 }
-      )
-    }
-
     // Check if file exists
     if (!submission.fileData) {
       return NextResponse.json(
