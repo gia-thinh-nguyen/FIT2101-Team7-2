@@ -92,7 +92,19 @@ export async function GET(request: NextRequest) {
       )
       
       if (existingSubmission) {
-        return existingSubmission
+        return {
+          _id: existingSubmission._id,
+          studentId: existingSubmission.studentId,
+          assignmentId: existingSubmission.assignmentId,
+          status: existingSubmission.status,
+          grade: existingSubmission.grade,
+          feedback: existingSubmission.feedback,
+          fileName: existingSubmission.fileName,
+          fileSize: existingSubmission.fileSize,
+          fileType: existingSubmission.fileType,
+          createdAt: existingSubmission.createdAt,
+          updatedAt: existingSubmission.updatedAt
+        }
       } else {
         // Return default submission data for assignments without submissions
         return {
@@ -101,6 +113,9 @@ export async function GET(request: NextRequest) {
           status: 'Pending',
           grade: 'N',
           feedback: null,
+          fileName: null,
+          fileSize: null,
+          fileType: null,
           createdAt: assignment.createdAt,
           updatedAt: assignment.updatedAt
         }

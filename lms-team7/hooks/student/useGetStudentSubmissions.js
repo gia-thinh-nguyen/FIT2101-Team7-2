@@ -31,6 +31,7 @@ export const useGetStudentSubmissions = (studentId, courseId) => {
         throw new Error(data.error || 'Failed to fetch student submissions')
       }
 
+      console.log('Fetched submissions:', data.submissions)
       setSubmissions(data.submissions || [])
 
     } catch (err) {
@@ -50,10 +51,17 @@ export const useGetStudentSubmissions = (studentId, courseId) => {
 
   // Helper function to get submission for a specific assignment
   const getSubmissionForAssignment = (assignmentId) => {
-    return submissions.find(submission => 
-      submission.assignmentId === assignmentId || 
-      submission.assignmentId._id === assignmentId
-    ) || null
+    const submission = submissions.find(sub => {
+      // Handle both populated and non-populated assignmentId
+      const subAssignmentId = sub.assignmentId?._id || sub.assignmentId
+      const subAssignmentIdStr = typeof subAssignmentId === 'object' 
+        ? subAssignmentId.toString() 
+        : subAssignmentId
+      
+      return subAssignmentIdStr === assignmentId || subAssignmentIdStr === assignmentId.toString()
+    })
+    console.log('Getting submission for assignment:', assignmentId, 'Found:', submission)
+    return submission || null
   }
 
   // Helper function to get grade for a specific assignment
@@ -74,6 +82,24 @@ export const useGetStudentSubmissions = (studentId, courseId) => {
     return submission ? submission.feedback : null
   }
 
+  // Helper function to check if assignment has been submitted
+  const hasSubmittedAssignment = (assignmentId) => {
+    const submission = getSubmissionForAssignment(assignmentId)
+    return submission && ['Submitted', 'Overdue', 'Graded'].includes(submission.status)
+  }
+
+  // Helper function to get file info
+  const getFileInfoForAssignment = (assignmentId) => {
+    const submission = getSubmissionForAssignment(assignmentId)
+    if (!submission?.fileName) return null
+    return {
+      submissionId: submission._id,
+      fileName: submission.fileName,
+      fileSize: submission.fileSize,
+      fileType: submission.fileType
+    }
+  }
+
   const clearError = () => {
     setError(null)
   }
@@ -90,6 +116,8 @@ export const useGetStudentSubmissions = (studentId, courseId) => {
     getGradeForAssignment,
     getStatusForAssignment,
     getFeedbackForAssignment,
+    hasSubmittedAssignment,
+    getFileInfoForAssignment,
     clearError,
     refetch
   }
