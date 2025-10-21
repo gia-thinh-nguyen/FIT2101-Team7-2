@@ -1,57 +1,36 @@
-import { useState } from 'react'
+import mongoose from "mongoose";
+const { Schema, model, models } = mongoose;
 
-export const useToggleReplyLike = () => {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState(null)
-
-  const toggleLike = async (replyId) => {
-    try {
-      setLoading(true)
-      setError(null)
-
-      const response = await fetch('/api/forum/replies/like', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ replyId })
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || `HTTP error! status: ${response.status}`)
-      }
-
-      if (!data.success) {
-        throw new Error(data.error || 'Failed to toggle like')
-      }
-
-      return {
-        success: true,
-        liked: data.liked,
-        likeCount: data.likeCount
-      }
-
-    } catch (err) {
-      console.error('Error toggling reply like:', err)
-      const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
-      setError(errorMessage)
-      return {
-        success: false,
-        error: errorMessage
-      }
-    } finally {
-      setLoading(false)
-    }
+const ForumReplySchema = new Schema(
+  {
+    content: { 
+      type: String, 
+      required: true, 
+      trim: true 
+    },
+    authorId: { 
+      type: Schema.Types.ObjectId, 
+      ref: 'User', 
+      required: true 
+    },
+    postId: { 
+      type: Schema.Types.ObjectId, 
+      ref: 'ForumPost', 
+      required: true 
+    },
+    likes: [{ 
+      type: Schema.Types.ObjectId, 
+      ref: 'User' 
+    }]
+  },
+  {
+    timestamps: true
   }
+);
 
-  const clearError = () => setError(null)
+// Index for better query performance
+ForumReplySchema.index({ postId: 1, createdAt: 1 });
+ForumReplySchema.index({ authorId: 1 });
 
-  return {
-    toggleLike,
-    loading,
-    error,
-    clearError
-  }
-}
+const ForumReply = models.ForumReply || model('ForumReply', ForumReplySchema);
+export default ForumReply;
