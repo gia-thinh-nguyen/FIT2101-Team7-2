@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Home, BookOpen, UserPlus, Menu, X, Palette } from "lucide-react";
+import { Home, BookOpen, UserPlus, Menu, X, Palette, MessageSquare } from "lucide-react";
 import { StudentSidebarItem } from "./StudentSidebarItem";
 import { useTheme } from "@/context/ThemeContext";
 
@@ -26,6 +26,11 @@ export const StudentSidebar = ({ collapsed, onToggle }: StudentSidebarProps) => 
       href: "/student/enrol",
       icon: <UserPlus size={20} />,
       label: "Enroll"
+    },
+    {
+      href: "/student/forum",
+      icon: <MessageSquare size={20} />,
+      label: "Forum"
     },
     {
       href: "/student/theme",
