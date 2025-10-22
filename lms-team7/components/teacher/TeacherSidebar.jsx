@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useTheme } from "@/context/ThemeContext";
 
-import { FaHome, FaBook, FaChalkboardTeacher, FaPalette, FaBars, FaTimes } from "react-icons/fa";
+import { FaHome, FaBook, FaChalkboardTeacher, FaPalette, FaBars, FaTimes, FaComments } from "react-icons/fa";
 import TeacherSidebarItem from "./TeacherSidebarItem";
 
 export default function TeacherSidebar({ collapsed, onToggle }) {
@@ -71,6 +71,7 @@ export default function TeacherSidebar({ collapsed, onToggle }) {
             <TeacherSidebarItem href="/teacher" icon={FaHome} label="Home" />
             <TeacherSidebarItem href="/teacher/courses" icon={FaBook} label="Courses" />
             <TeacherSidebarItem href="/teacher/classrooms" icon={FaChalkboardTeacher} label="Classroom" />
+            <TeacherSidebarItem href="/teacher/forum" icon={FaComments} label="Forum" />
             <TeacherSidebarItem href="/teacher/theme" icon={FaPalette} label="Theme Selection" />
           </>
         )}
