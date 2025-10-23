@@ -7,6 +7,31 @@ import { useCreateForumPost } from '@/hooks/forum/useCreateForumPost'
 import { useTogglePostLike } from '@/hooks/forum/useTogglePostLike'
 import { useGetForumReplies } from '@/hooks/forum/useGetForumReplies'
 import { useCreateForumReply } from '@/hooks/forum/useCreateForumReply'
+
+// Type definitions for forum entities
+interface ForumPost {
+  _id: string
+  title: string
+  content: string
+  category: string
+  authorId: {
+    name: string
+  }
+  createdAt: string
+  likes: string[]
+  replyCount: number
+}
+
+interface ForumReply {
+  _id: string
+  content: string
+  authorId: {
+    name: string
+  }
+  createdAt: string
+  likes: string[]
+}
+
 export default function ForumPage() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [sortBy, setSortBy] = useState('recent')
@@ -14,10 +39,10 @@ export default function ForumPage() {
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null)
   const [replyText, setReplyText] = useState('')
 
-  const { posts, loading: postsLoading, refetch: refetchPosts } = useGetForumPosts(selectedCategory, sortBy)
+  const { posts, loading: postsLoading, refetch: refetchPosts } = useGetForumPosts(selectedCategory, sortBy) as { posts: ForumPost[], loading: boolean, refetch: () => void }
   const { createPost, loading: createLoading } = useCreateForumPost()
   const { toggleLike } = useTogglePostLike()
-  const { replies, loading: repliesLoading, refetch: refetchReplies } = useGetForumReplies(selectedPostId)
+  const { replies, loading: repliesLoading, refetch: refetchReplies } = useGetForumReplies(selectedPostId) as { replies: ForumReply[], loading: boolean, refetch: () => void }
   const { createReply, loading: replyLoading } = useCreateForumReply()
 
   const [newPost, setNewPost] = useState({
@@ -208,7 +233,7 @@ export default function ForumPage() {
           </div>
         ) : (
           <div className="space-y-4">
-            {posts.map((post) => (
+            {posts.map((post: ForumPost) => (
               <div
                 key={post._id}
                 className="bg-white rounded-lg shadow-md p-6 border border-gray-200 hover:shadow-lg transition-shadow"
@@ -269,7 +294,7 @@ export default function ForumPage() {
                       <p className="text-gray-500 text-center py-4">No replies yet. Be the first to reply!</p>
                     ) : (
                       <div className="space-y-4 mb-4">
-                        {replies.map((reply) => (
+                        {replies.map((reply: ForumReply) => (
                           <div key={reply._id} className="bg-gray-50 rounded-lg p-4">
                             <div className="flex items-start space-x-3 mb-2">
                               <div className="h-8 w-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
