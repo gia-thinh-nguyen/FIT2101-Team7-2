@@ -177,8 +177,7 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
     refetch: refetchSubmissions
   } = useGetStudentSubmissions(studentId, course._id)
   
-  const { submitAssignment, loading: submitLoading, error: submitError, success: submitSuccess, clearError, clearSuccess } = useSubmitAssignment()
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const { submitAssignment, loading: submitLoading } = useSubmitAssignment()
   const [currentAssignmentId, setCurrentAssignmentId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -203,7 +202,6 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (file && file.type === 'application/pdf') {
-      setSelectedFile(file)
       // Automatically submit after file selection
       if (currentAssignmentId) {
         handleSubmit(currentAssignmentId, file)
@@ -224,7 +222,6 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
     if (result.success) {
       // Refresh submissions to show updated status
       refetchSubmissions()
-      setSelectedFile(null)
       setCurrentAssignmentId(null)
       alert(result.message || 'Assignment submitted successfully!')
     } else {
@@ -374,7 +371,7 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
   // Unwrap the params Promise using React.use()
   const { courseId } = React.use(params)
   const { user } = useUser()
-  const { course, loading, error, refetchCourse } = useGetStudentCourse(courseId)
+  const { course, loading, error } = useGetStudentCourse(courseId)
   const [activeTab, setActiveTab] = useState('lessons')
   
   // Type the course properly
@@ -413,8 +410,8 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
     )
   }
 
-  const activeLessons = typedCourse.lessonIds?.filter((lesson: any) => lesson.status === 'active') || []
-  const totalHours = activeLessons.reduce((sum: number, lesson: any) => sum + (lesson.estHoursPerWeek || 0), 0)
+  const activeLessons = typedCourse.lessonIds?.filter((lesson: Lesson) => lesson.status === 'active') || []
+  const totalHours = activeLessons.reduce((sum: number, lesson: Lesson) => sum + (lesson.estHoursPerWeek || 0), 0)
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

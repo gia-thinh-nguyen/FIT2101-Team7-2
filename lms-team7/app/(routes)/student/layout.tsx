@@ -1,11 +1,9 @@
 "use client";
 import { useState } from "react";
 import { StudentSidebar } from "@/components/student/StudentSidebar";
-import { useTheme } from "@/context/ThemeContext";
 
 export default function StudentLayout({ children }: { children: React.ReactNode }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { currentTheme } = useTheme();
 
   const handleSidebarToggle = () => {
     setSidebarCollapsed(!sidebarCollapsed);

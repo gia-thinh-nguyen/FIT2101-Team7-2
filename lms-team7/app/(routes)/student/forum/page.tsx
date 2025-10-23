@@ -7,10 +7,7 @@ import { useCreateForumPost } from '@/hooks/forum/useCreateForumPost'
 import { useTogglePostLike } from '@/hooks/forum/useTogglePostLike'
 import { useGetForumReplies } from '@/hooks/forum/useGetForumReplies'
 import { useCreateForumReply } from '@/hooks/forum/useCreateForumReply'
-import { useUser } from '@clerk/nextjs'
-
 export default function ForumPage() {
-  const { user } = useUser()
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [sortBy, setSortBy] = useState('recent')
   const [showNewPostForm, setShowNewPostForm] = useState(false)
