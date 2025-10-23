@@ -1,7 +1,9 @@
 import { useState } from "react";
-import { Home, BookOpen, UserPlus, Menu, X, Palette } from "lucide-react";
+
+import { Home, BookOpen, UserPlus, Menu, X, Palette, MessageSquare } from "lucide-react";
 import { StudentSidebarItem } from "./StudentSidebarItem";
 import { useTheme } from "@/context/ThemeContext";
+
 
 interface StudentSidebarProps {
   collapsed: boolean;
@@ -26,6 +28,16 @@ export const StudentSidebar = ({ collapsed, onToggle }: StudentSidebarProps) => 
       href: "/student/enrol",
       icon: <UserPlus size={20} />,
       label: "Enroll"
+    },
+    {
+      href: "/student/theme",
+      icon: <Palette size={20} />,
+      label: "Themes"
+    },
+    {
+      href: "/student/forum",
+      icon: <MessageSquare size={20} />,
+      label: "Forum"
     },
     {
       href: "/student/theme",
@@ -95,16 +107,8 @@ export const StudentSidebar = ({ collapsed, onToggle }: StudentSidebarProps) => 
 
       {/* Footer */}
       {!collapsed && (
-        <div 
-          className="p-4 border-t"
-          style={{ borderTopColor: `${currentTheme.hexColor}30` }}
-        >
-          <div 
-            className="text-xs text-center"
-            style={{ 
-              color: currentTheme.hexColor === '#ffffff' ? '#6b7280' : '#d1d5db'
-            }}
-          >
+        <div className="p-4 border-t border-gray-200">
+          <div className="text-xs text-gray-500 text-center">
             Learning Management System
           </div>
         </div>

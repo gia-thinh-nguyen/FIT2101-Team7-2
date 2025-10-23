@@ -245,53 +245,6 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
     return 'upcoming'
   }
 
-  // Helper function to get grade display
-  const getGradeDisplay = (assignmentId: string) => {
-    const grade = getGradeForAssignment(assignmentId)
-    const status = getStatusForAssignment(assignmentId)
-    
-    switch (grade) {
-      case 'P':
-        return { text: 'Pass', color: 'text-green-600', bgColor: 'bg-green-100', icon: CheckCircle }
-      case 'F':
-        return { text: 'Fail', color: 'text-red-600', bgColor: 'bg-red-100', icon: XCircle }
-      case 'N':
-      default:
-        return status === 'Graded' 
-          ? { text: 'Not Graded', color: 'text-gray-600', bgColor: 'bg-gray-100', icon: ClockIcon }
-          : { text: 'Not Submitted', color: 'text-yellow-600', bgColor: 'bg-yellow-100', icon: ClockIcon }
-    }
-  }
-
-  if (submissionsLoading) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-gray-900">Assignments & Assessments</h3>
-          <span className="text-sm text-gray-500">{assignments.length} assignments</span>
-        </div>
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-          <span className="ml-2 text-gray-600">Loading grades...</span>
-        </div>
-      </div>
-    )
-  }
-
-  if (submissionsError) {
-    return (
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold text-gray-900">Assignments & Assessments</h3>
-          <span className="text-sm text-gray-500">{assignments.length} assignments</span>
-        </div>
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <p className="text-yellow-800">Unable to load grades: {submissionsError}</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -327,54 +280,27 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
                   </div>
                 </div>
                 
-                <div className="flex items-start justify-between text-sm text-gray-600">
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                    <span className={isOverdue ? 'text-red-600 font-medium' : ''}>
-                      Due: {dueDate.toLocaleDateString('en-US', { 
-                        weekday: 'short', 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
-                      })}
-                    </span>
-                  </div>
-                  
-                  {/* Grade and Status Display - Stacked Vertically */}
-                  <div className="flex flex-col items-end space-y-2">
-                    {/* Submission Status */}
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-500 text-xs">Status:</span>
-                      <span className={`font-medium text-sm ${
-                        getStatusForAssignment(assignment._id) === 'Submitted' ? 'text-blue-600' :
-                        getStatusForAssignment(assignment._id) === 'Graded' ? 'text-green-600' :
-                        getStatusForAssignment(assignment._id) === 'Overdue' ? 'text-red-600' :
-                        'text-yellow-600'
-                      }`}>
-                        {getStatusForAssignment(assignment._id)}
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center">
+                      <Calendar className="h-4 w-4 mr-2 text-gray-400" />
+                      <span className={isOverdue ? 'text-red-600 font-medium' : ''}>
+                        Due: {dueDate.toLocaleDateString('en-US', { 
+                          weekday: 'short', 
+                          year: 'numeric', 
+                          month: 'short', 
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </span>
                     </div>
-                    
-                    {/* Grade Display */}
-                    <div className="flex items-center space-x-2">
-                      <span className="text-gray-500 text-xs">Grade:</span>
-                      <div className="flex items-center space-x-1">
-                        {(() => {
-                          const gradeInfo = getGradeDisplay(assignment._id)
-                          const GradeIcon = gradeInfo.icon
-                          return (
-                            <>
-                              <GradeIcon className={`h-4 w-4 ${gradeInfo.color}`} />
-                              <span className={`font-medium px-2 py-1 rounded-full text-xs ${gradeInfo.color} ${gradeInfo.bgColor}`}>
-                                {gradeInfo.text}
-                              </span>
-                            </>
-                          )
-                        })()}
-                      </div>
-                    </div>
+                  </div>
+                  
+                  {/* Submission Status - This would normally come from a submission table/API */}
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-500">Status:</span>
+                    <span className="text-yellow-600 font-medium">Not Submitted</span>
                   </div>
                 </div>
 
@@ -447,7 +373,6 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
 export default function CourseDetailsPage({ params }: { params: Promise<{ courseId: string }> }) {
   // Unwrap the params Promise using React.use()
   const { courseId } = React.use(params)
-  const { user } = useUser()
   const { course, loading, error, refetchCourse } = useGetStudentCourse(courseId)
   const [activeTab, setActiveTab] = useState('lessons')
   
@@ -621,8 +546,8 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
             {activeTab === 'lessons' && (
               <LessonsTab course={typedCourse} />
             )}
-            {activeTab === 'assignments' && user?.id && (
-              <AssignmentsTab course={typedCourse} studentId={user.id} />
+            {activeTab === 'assignments' && (
+              <AssignmentsTab course={typedCourse} />
             )}
           </div>
         </div>
