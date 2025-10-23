@@ -11,7 +11,7 @@ export async function GET(
   try {
     // Get the current user from Clerk
     const user = await currentUser()
-    
+
     if (!user) {
       return NextResponse.json(
         { error: 'Unauthorized. Please log in.' },
@@ -24,7 +24,7 @@ export async function GET(
 
     // Get the user from the database
     const dbUser = await User.findOne({ clerkId: user.id })
-    
+
     if (!dbUser) {
       return NextResponse.json(
         { error: 'User not found in database.' },
@@ -36,7 +36,7 @@ export async function GET(
 
     // Get the submission
     const submission = await StudentSubmission.findById(submissionId)
-    
+
     if (!submission) {
       return NextResponse.json(
         { error: 'Submission not found.' },
@@ -64,7 +64,7 @@ export async function GET(
 
   } catch (error) {
     console.error('Error retrieving file:', error)
-    
+
     // Handle specific MongoDB errors
     if (error instanceof Error && error.name === 'CastError') {
       return NextResponse.json(

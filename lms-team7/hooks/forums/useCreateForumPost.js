@@ -1,20 +1,22 @@
 import { useState } from 'react'
 
-export const useToggleReplyLike = () => {
+export const useCreateForumPost = () => {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [success, setSuccess] = useState(false)
 
-  const toggleLike = async (replyId) => {
+  const createPost = async (title, content, category = 'General') => {
     try {
       setLoading(true)
       setError(null)
+      setSuccess(false)
 
-      const response = await fetch('/api/forum/replies/like', {
+      const response = await fetch('/api/forum/posts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ replyId })
+        body: JSON.stringify({ title, content, category })
       })
 
       const data = await response.json()
@@ -24,17 +26,18 @@ export const useToggleReplyLike = () => {
       }
 
       if (!data.success) {
-        throw new Error(data.error || 'Failed to toggle like')
+        throw new Error(data.error || 'Failed to create post')
       }
 
+      setSuccess(true)
       return {
         success: true,
-        liked: data.liked,
-        likeCount: data.likeCount
+        post: data.post,
+        message: data.message || 'Post created successfully'
       }
 
     } catch (err) {
-      console.error('Error toggling reply like:', err)
+      console.error('Error creating forum post:', err)
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred'
       setError(errorMessage)
       return {
@@ -47,11 +50,14 @@ export const useToggleReplyLike = () => {
   }
 
   const clearError = () => setError(null)
+  const clearSuccess = () => setSuccess(false)
 
   return {
-    toggleLike,
+    createPost,
     loading,
     error,
-    clearError
+    success,
+    clearError,
+    clearSuccess
   }
 }

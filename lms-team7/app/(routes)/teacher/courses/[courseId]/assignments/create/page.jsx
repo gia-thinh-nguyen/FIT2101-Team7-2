@@ -14,7 +14,8 @@ const CreateAssignmentPage = () => {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    dueDate: ''
+    dueDate: '',
+    status: 'active'
   })
 
   const handleInputChange = (e) => {
@@ -139,6 +140,22 @@ const CreateAssignmentPage = () => {
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
                       required
                     />
+                  </div>
+
+                  {/* Status */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Status
+                    </label>
+                    <select
+                      name="status"
+                      value={formData.status}
+                      onChange={handleInputChange}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors"
+                    >
+                      <option value="active">Active</option>
+                      <option value="inactive">Inactive</option>
+                    </select>
                   </div>
                 </div>
 

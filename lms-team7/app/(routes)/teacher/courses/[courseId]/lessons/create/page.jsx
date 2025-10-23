@@ -18,7 +18,7 @@ const CreateLessonPage = () => {
     readingList: [''],
     estHoursPerWeek: 1,
     credit: 6,
-    status: 'draft'
+    status: 'active'
   })
 
   const handleInputChange = (e) => {
@@ -243,9 +243,8 @@ const CreateLessonPage = () => {
                       onChange={handleInputChange}
                       className="select select-bordered select-primary focus:select-primary"
                     >
-                      <option value="draft">Draft</option>
                       <option value="active">Active</option>
-                      <option value="archived">Archived</option>
+                      <option value="inactive">Inactive</option>
                     </select>
                   </div>
                 </div>
