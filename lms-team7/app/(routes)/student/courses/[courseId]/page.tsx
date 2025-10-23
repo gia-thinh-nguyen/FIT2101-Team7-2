@@ -164,7 +164,8 @@ const LessonsTab = ({ course }: { course: Course }) => {
 
 // Assignments Tab Component (using real assignment data from course)
 const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: string }) => {
-  const assignments = course.assignmentIds || []
+  // Filter to only show active assignments
+  const assignments = (course.assignmentIds || []).filter((assignment: any) => assignment.status === 'active')
   const {
     submissions,
     loading: submissionsLoading,
@@ -295,7 +296,7 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold text-gray-900">Assignments & Assessments</h3>
-        <span className="text-sm text-gray-500">{assignments.length} assignments</span>
+        <span className="text-sm text-gray-500">{assignments.length} active assignments</span>
       </div>
       
       {assignments.length > 0 ? (
@@ -433,8 +434,8 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
       ) : (
         <div className="text-center py-12">
           <FileText className="h-16 w-16 mx-auto mb-4 text-gray-300" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Assignments Yet</h3>
-          <p className="text-gray-600">Assignments will appear here when your instructor creates them.</p>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">No Active Assignments</h3>
+          <p className="text-gray-600">Active assignments will appear here when your instructor creates them.</p>
         </div>
       )}
     </div>
