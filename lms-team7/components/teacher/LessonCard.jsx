@@ -2,10 +2,13 @@
 
 import { useState } from 'react'
 import { useDeleteLesson } from '../../hooks/teacher/useDeleteLesson'
+import { useUpdateLessonStatus } from '../../hooks/teacher/useUpdateLessonStatus'
 
 const LessonCard = ({ lesson, index, onDelete }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const { deleteLesson, loading: isDeleting, error: deleteError } = useDeleteLesson()
+  const { updateLessonStatus, loading: isUpdatingStatus } = useUpdateLessonStatus()
+  const [currentStatus, setCurrentStatus] = useState(lesson.status || 'active')
 
   const handleDelete = async () => {
     try {
@@ -24,13 +27,26 @@ const LessonCard = ({ lesson, index, onDelete }) => {
     }
   }
 
+  const handleToggleStatus = async () => {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active'
+    const result = await updateLessonStatus(lesson._id || lesson.id, newStatus)
+    if (result.success) {
+      setCurrentStatus(newStatus)
+    }
+  }
+
   return (
     <>
       <div className="flex items-center justify-between p-4 bg-base-200 rounded-lg hover:bg-base-300 transition-colors">
         <div className="flex items-center gap-3">
           <div className="badge badge-outline">{index + 1}</div>
           <div className="flex flex-col">
-            <span className="font-medium">{lesson.title || `Lesson ${index + 1}`}</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{lesson.title || `Lesson ${index + 1}`}</span>
+              <span className={`badge badge-sm ${currentStatus === 'active' ? 'badge-success' : 'badge-warning'}`}>
+                {currentStatus}
+              </span>
+            </div>
             {lesson.description && (
               <span className="text-sm text-gray-600 mt-1">{lesson.description}</span>
             )}
@@ -38,6 +54,23 @@ const LessonCard = ({ lesson, index, onDelete }) => {
         </div>
         
         <div className="flex gap-2">
+          <button 
+            className={`btn btn-sm ${currentStatus === 'active' ? 'btn-warning' : 'btn-success'}`}
+            onClick={handleToggleStatus}
+            disabled={isUpdatingStatus}
+            title={currentStatus === 'active' ? 'Set as Inactive' : 'Set as Active'}
+          >
+            {isUpdatingStatus ? (
+              <span className="loading loading-spinner loading-xs"></span>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                {currentStatus === 'active' ? 'Inactive' : 'Active'}
+              </>
+            )}
+          </button>
           <button 
             className="btn btn-sm btn-error"
             onClick={() => setShowDeleteModal(true)}

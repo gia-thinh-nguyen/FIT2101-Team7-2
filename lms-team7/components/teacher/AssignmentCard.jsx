@@ -1,11 +1,14 @@
 'use client'
 
 import { useState } from 'react'
+import { useUpdateAssignmentStatus } from '../../hooks/teacher/useUpdateAssignmentStatus'
 
 const AssignmentCard = ({ assignment, index, onDelete }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteError, setDeleteError] = useState(null)
+  const { updateAssignmentStatus, loading: isUpdatingStatus } = useUpdateAssignmentStatus()
+  const [currentStatus, setCurrentStatus] = useState(assignment.status || 'active')
 
   const handleDelete = async () => {
     try {
@@ -28,6 +31,14 @@ const AssignmentCard = ({ assignment, index, onDelete }) => {
       setDeleteError('Failed to delete assignment. Please try again.')
     } finally {
       setIsDeleting(false)
+    }
+  }
+
+  const handleToggleStatus = async () => {
+    const newStatus = currentStatus === 'active' ? 'inactive' : 'active'
+    const result = await updateAssignmentStatus(assignment._id || assignment.id, newStatus)
+    if (result.success) {
+      setCurrentStatus(newStatus)
     }
   }
 
@@ -60,7 +71,12 @@ const AssignmentCard = ({ assignment, index, onDelete }) => {
         <div className="flex items-center gap-3">
           <div className="badge badge-outline">{index + 1}</div>
           <div className="flex flex-col">
-            <span className="font-medium">{assignment.title || `Assignment ${index + 1}`}</span>
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{assignment.title || `Assignment ${index + 1}`}</span>
+              <span className={`badge badge-sm ${currentStatus === 'active' ? 'badge-success' : 'badge-warning'}`}>
+                {currentStatus}
+              </span>
+            </div>
             {assignment.description && (
               <span className="text-sm text-gray-600 mt-1">{assignment.description}</span>
             )}
@@ -73,6 +89,23 @@ const AssignmentCard = ({ assignment, index, onDelete }) => {
         </div>
         
         <div className="flex gap-2">
+          <button 
+            className={`btn btn-sm ${currentStatus === 'active' ? 'btn-warning' : 'btn-success'}`}
+            onClick={handleToggleStatus}
+            disabled={isUpdatingStatus}
+            title={currentStatus === 'active' ? 'Set as Inactive' : 'Set as Active'}
+          >
+            {isUpdatingStatus ? (
+              <span className="loading loading-spinner loading-xs"></span>
+            ) : (
+              <>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+                </svg>
+                {currentStatus === 'active' ? 'Inactive' : 'Active'}
+              </>
+            )}
+          </button>
           <button 
             className="btn btn-sm btn-error"
             onClick={() => setShowDeleteModal(true)}
