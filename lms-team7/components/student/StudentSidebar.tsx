@@ -38,11 +38,6 @@ export const StudentSidebar = ({ collapsed, onToggle }: StudentSidebarProps) => 
       href: "/student/forum",
       icon: <MessageSquare size={20} />,
       label: "Forum"
-    },
-    {
-      href: "/student/theme",
-      icon: <Palette size={20} />,
-      label: "Themes"
     }
   ];
 
