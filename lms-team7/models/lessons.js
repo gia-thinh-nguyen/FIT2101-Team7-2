@@ -9,7 +9,7 @@ const LessonSchema = new Schema(
     readingList:{ type: [String], default: [] },
     estHoursPerWeek: { type: Number, min: 1, max: 40 },
     designerId: { type: Schema.Types.ObjectId, ref: 'User', required: true }, // teacher
-    status:     { type: String, enum: ['draft','active','archived'], default: 'active' },
+    status:     { type: String, enum: ['active', 'inactive'], default: 'active' },
     credit:     { type: Number, default: 6 }, // each lesson = 6cp
   }
 );

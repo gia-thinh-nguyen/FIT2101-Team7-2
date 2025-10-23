@@ -11,6 +11,11 @@ const AssignmentSchema = new Schema(
       type: Schema.Types.ObjectId, 
       ref: 'Course', 
       required: true 
+    },
+    status: { 
+      type: String, 
+      enum: ['active', 'inactive'], 
+      default: 'active' 
     }
   },
   {
