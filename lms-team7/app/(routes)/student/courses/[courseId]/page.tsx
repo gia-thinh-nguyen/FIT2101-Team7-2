@@ -373,6 +373,7 @@ const AssignmentsTab = ({ course, studentId }: { course: Course; studentId: stri
 export default function CourseDetailsPage({ params }: { params: Promise<{ courseId: string }> }) {
   // Unwrap the params Promise using React.use()
   const { courseId } = React.use(params)
+  const { user } = useUser()
   const { course, loading, error, refetchCourse } = useGetStudentCourse(courseId)
   const [activeTab, setActiveTab] = useState('lessons')
   
@@ -546,8 +547,8 @@ export default function CourseDetailsPage({ params }: { params: Promise<{ course
             {activeTab === 'lessons' && (
               <LessonsTab course={typedCourse} />
             )}
-            {activeTab === 'assignments' && (
-              <AssignmentsTab course={typedCourse} />
+            {activeTab === 'assignments' && user?.id && (
+              <AssignmentsTab course={typedCourse} studentId={user.id} />
             )}
           </div>
         </div>
